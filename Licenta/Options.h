@@ -1,0 +1,4 @@
+#pragma once
+
+//#define USE_INSTANCED_RENDERING
+//#define USE_DEFFERED_RENDERING
