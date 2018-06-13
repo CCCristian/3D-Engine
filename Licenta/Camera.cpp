@@ -155,4 +155,10 @@ namespace OpenGL
 		rotateHorizontal((float)x);
 		rotateVertical((float)y);
 	}
+	void Camera::invertPitch()
+	{
+		vertAngle = -vertAngle;
+		calcAndSetVectors();
+		updateView();
+	}
 }

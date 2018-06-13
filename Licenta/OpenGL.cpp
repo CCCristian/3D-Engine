@@ -16,8 +16,9 @@ namespace OpenGL
 
 	void initializari()
 	{
-		glClearColor(0.0, 0.0, 0.0, 1.0);
+		glClearColor(1.0, 0.0, 1.0, 1.0);
 		Texture::init();
+		Water::initTextures();
 		glCullFace(GL_BACK);
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_CULL_FACE);

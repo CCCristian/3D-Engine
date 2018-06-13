@@ -13,24 +13,10 @@ private:
 	static std::chrono::steady_clock::time_point lastUpdate;
 
 public:
-	static inline void init()
-	{
-		lastUpdate = inceput = std::chrono::steady_clock::now();
-		srand((unsigned)inceput.time_since_epoch().count());
-	}
-	static inline void update()
-	{
-		lastUpdate = std::chrono::steady_clock::now();
-		srand((unsigned)inceput.time_since_epoch().count());
-	}
-	static inline long long elapsedMilliseconds()	// Timpul trecut de la ultimul frame (in milisecunde)
-	{
-		return std::chrono::duration_cast<std::chrono::milliseconds>(ceas.now() - inceput).count();
-	}
-	static inline long long deltaMilliseconds()
-	{
-		return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - lastUpdate).count();
-	}
+	static void init();
+	static void update();
+	static long long elapsedMilliseconds();	// Timpul trecut de la ultimul frame (in milisecunde)
+	static long long deltaMilliseconds();
 };
 
 extern std::minstd_rand random;

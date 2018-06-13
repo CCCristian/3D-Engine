@@ -52,13 +52,13 @@ namespace OpenGL
 	public:
 		static void init();
 		static Texture* getDefaultTexture()		{ return defaultTexture; }
-		static Texture* loadTexture(const std::string filePath, int mipmapLevel = 0);
+		static Texture* loadTexture(const std::string filePath, GLenum minFilter = GL_NEAREST, GLenum magFilter = GL_NEAREST, int mipmapLevel = 0);
 		static void unloadTexture(const std::string filePath);
 		static Texture* createShadowMap(int width, int height);
-		GLuint getHandle()		{ return tex; }
-		int getMipmapLevel()	{ return mipmapLevel; }
-		int getWidth()			{ return width; }
-		int getHeight()			{ return height; }
+		GLuint getHandle() const	{ return tex; }
+		int getMipmapLevel() const	{ return mipmapLevel; }
+		int getWidth() const		{ return width; }
+		int getHeight() const		{ return height; }
 		void resize(int width, int height);
 
 
@@ -72,7 +72,8 @@ namespace OpenGL
 			int pixelFormat;
 			int imageFormat;
 			GLenum dataType;
-			GLenum filter;
+			GLenum minfilter;
+			GLenum magfilter;
 			bool isCubemap;
 
 		public:
@@ -82,7 +83,7 @@ namespace OpenGL
 			Builder& setData(unsigned char* data);
 			Builder& setMipmapLevel(int mipmapLevel);
 			Builder& setImageFormat(TextureType type);
-			Builder& setFilter(GLenum filter);
+			Builder& setFilters(GLenum minfilter, GLenum magfilter);
 			Builder& setIsCubemap(bool isCubemap);
 			Texture* build();
 			void deleteTexture(Texture* texture);

@@ -57,5 +57,6 @@ namespace OpenGL
 		const glm::mat4& getViewMatrix();
 		const glm::mat4& getProjectionMatrix();
 		void mouseLookDelta(int x, int y);
+		void invertPitch();
 	};
 }

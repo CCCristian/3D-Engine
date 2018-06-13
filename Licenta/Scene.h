@@ -11,6 +11,7 @@
 #include "Camera.h"
 #include "Shader.h"
 #include "Skybox.h"
+#include "Water.h"
 #include "Renderer.h"
 
 namespace OpenGL
@@ -28,22 +29,25 @@ namespace OpenGL
 		SceneRenderingShader sceneShader;
 		ShadowMapShader shadowMapShader;
 		SkyboxShader skyboxShader;
+		WaterShader waterShader;
 		DirectShader directShader;
-		Framebuffer reflectionFramebuffer;
-		Framebuffer refractionFramebuffer;
 
 		Renderer renderer;
 		Skybox *skybox;
 		Camera *camera;
-		//std::map<const Model *, std::set<Object *>> objects;
+
 		std::map<const Model *, ModelInstanceData *> instances;
+		std::vector<Water *> waterBodies;
+
 		AmbientLight ambientLight;
 		std::set<DirectionalLight *> directionalLights;
 		std::set<PointLight *> pointLights;
 		std::set<SpotLight *> spotLights;
 
-		void drawSceneObjects(Renderer renderer, std::map<const Model *, ModelInstanceData *>& instances, bool drawForShadowMap);
-		void drawTextureOnScreen(Texture* texture, float x, float y, float width, float height);
+		void drawSceneObjects(std::map<const Model *, ModelInstanceData *>& instances, bool drawForShadowMap);
+		void drawTextureOnScreen(const Texture* texture, float x, float y, float width, float height);
+		void uploadWorldMatrixToShader(const Shader& shader, const glm::mat4& world);
+		void drawSkybox();
 
 	public:
 		Scene();
@@ -51,6 +55,7 @@ namespace OpenGL
 		void drawAll();
 		Object* addObject(Object *ob);
 		void removeObject(Object *ob);
+		void addWaterBody(float height, float northBorder, float southBorder, float eastBorder, float westBorder);
 		void setAmbientLight(glm::vec3 color, float intensity);
 		void addDirectionalLight(glm::vec3 direction, float diffuseIntensity, glm::vec3 diffuseColor = glm::vec3(1), glm::vec3 specularColor = glm::vec3(1));
 		void addPointLight(glm::vec3 position, float power, float quadraticFactor, float linearFactor, float constantFactor = 1.f, glm::vec3 diffuseColor = glm::vec3(1), glm::vec3 specularColor = glm::vec3(1));

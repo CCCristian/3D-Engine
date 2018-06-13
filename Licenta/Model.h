@@ -11,8 +11,8 @@
 #include <vector>
 #include "Texture.h"
 #include "Utils.h"
-#include "Shader.h"
 #include "Mesh.h"
+#include "Shader.h"
 
 namespace OpenGL
 {
@@ -32,7 +32,7 @@ namespace OpenGL
 		std::string name;
 		void constructMeshObjects(aiNode *node, aiMatrix4x4 transform);
 		glm::mat4 convertToGLMMat4(aiMatrix4x4 &mat);
-		static Mesh* quadMesh;
+		static Model* quadModel;
 	protected:
 		Model(std::string name, int vaosCount);
 		GLuint* vaos;
@@ -41,13 +41,13 @@ namespace OpenGL
 		std::vector<Material *> materials;
 	public:
 		static const Model* createModel(std::string name, std::string file);
-		static const Mesh* getQuadVAO();
+		static const Model* getQuadModel();
 		Model(std::string name, std::string file);
 		Model(std::string name, const std::vector<glm::vec3>& positions, const std::vector<glm::vec3>& normals, const std::vector<glm::vec2>& texCoords, const std::vector<unsigned>& indices, std::string texturePath);
 		Model(std::string name, const std::vector<glm::vec3>& positions, const std::vector<glm::vec3>& normals, const std::vector<glm::vec2>& texCoords, const std::vector<unsigned>& indices, Texture *tex);
 		virtual ~Model();
 		/** Upload all necessary non-instance uniforms to the shader, bind the VAO, bind the appropriate textures, etc. */
-		virtual void prepareShader(int meshObjectIndex) const;
+		virtual void prepareShader(int meshObjectIndex, Shader::ShaderType shaderType) const;
 		int getMeshCount() const									{ return meshes.size(); }
 		const std::vector<Mesh *>& getMeshes() const				{ return meshes; }
 		int getMeshObjectsCount() const								{ return meshObjects.size(); }

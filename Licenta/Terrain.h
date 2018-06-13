@@ -14,7 +14,7 @@ namespace OpenGL
 		Terrain(std::string name, std::string heightMapFile, Texture* texture1, Texture* texture2, Texture* texture3, float maxHeight, Material* material);
 		virtual ~Terrain();
 		/** Upload all necessary non-instance uniforms to the shader, bind the VAO, bind the appropriate textures, etc. */
-		virtual void prepareShader(int meshObjectIndex) const;
+		virtual void prepareShader(int meshObjectIndex, Shader::ShaderType shaderType) const;
 
 
 		class Builder

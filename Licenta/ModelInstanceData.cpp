@@ -14,10 +14,6 @@ namespace OpenGL
 			instanceVBOHandles.push_back(vbos[i]);
 #ifdef USE_INSTANCED_RENDERING
 			glBindVertexArray(model->getMeshObjects()[i]->mesh->getHandle());
-			glEnableVertexAttribArray(5);
-			glEnableVertexAttribArray(6);
-			glEnableVertexAttribArray(7);
-			glEnableVertexAttribArray(8);
 #endif
 		}
 	}

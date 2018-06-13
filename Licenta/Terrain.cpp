@@ -79,31 +79,31 @@ namespace OpenGL
 
 	}
 
-	void Terrain::prepareShader(int meshObjectIndex) const
+	void Terrain::prepareShader(int meshObjectIndex, Shader::ShaderType shaderType) const
 	{
-		glBindVertexArray(meshObjects[meshObjectIndex]->mesh->getHandle());
-		Material* material = meshObjects[meshObjectIndex]->mesh->getMaterial();
-		glActiveTexture(GL_TEXTURE0 + Shader::samplerValues.colorSampler);
-		glBindTexture(GL_TEXTURE_2D, material->colorTexture->getHandle());
-		if (textureCount >= 2)
+		if (shaderType == Shader::ShaderType::MainShader)
 		{
-			glActiveTexture(GL_TEXTURE0 + Shader::samplerValues.colorSampler2);
-			glBindTexture(GL_TEXTURE_2D, material->colorTexture2->getHandle());
+			Material* material = meshObjects[meshObjectIndex]->mesh->getMaterial();
+			glUniform3f(SceneRenderingShader::uniformLocations.materialDiffuseColor, material->diffuseColor.x, material->diffuseColor.y, material->diffuseColor.z);
+			glUniform3f(SceneRenderingShader::uniformLocations.materialSpecularColor, material->specularColor.x, material->specularColor.y, material->specularColor.z);
+			glUniform1f(SceneRenderingShader::uniformLocations.materialSpecularIntensity, material->specularIntensity);
+			glUniform1f(SceneRenderingShader::uniformLocations.materialSpecularPower, material->specularPower);
+			glUniform1i(SceneRenderingShader::uniformLocations.textureCount, textureCount);
+			glUniform1f(SceneRenderingShader::uniformLocations.textureRepeatCount, textureRepeatCount);
+			glActiveTexture(GL_TEXTURE0 + Shader::samplerValues.colorSampler);
+			glBindTexture(GL_TEXTURE_2D, material->colorTexture->getHandle());
+			if (textureCount >= 2)
+			{
+				glActiveTexture(GL_TEXTURE0 + Shader::samplerValues.colorSampler2);
+				glBindTexture(GL_TEXTURE_2D, material->colorTexture2->getHandle());
+			}
+			if (textureCount >= 3)
+			{
+				glActiveTexture(GL_TEXTURE0 + Shader::samplerValues.colorSampler3);
+				glBindTexture(GL_TEXTURE_2D, material->colorTexture3->getHandle());
+			}
 		}
-		if (textureCount >= 3)
-		{
-			glActiveTexture(GL_TEXTURE0 + Shader::samplerValues.colorSampler3);
-			glBindTexture(GL_TEXTURE_2D, material->colorTexture3->getHandle());
-		}
-		glUniform3f(SceneRenderingShader::uniformLocations.materialDiffuseColor, material->diffuseColor.x, material->diffuseColor.y, material->diffuseColor.z);
-		glUniform3f(SceneRenderingShader::uniformLocations.materialSpecularColor, material->specularColor.x, material->specularColor.y, material->specularColor.z);
-		glUniform1f(SceneRenderingShader::uniformLocations.materialSpecularIntensity, material->specularIntensity);
-		glUniform1f(SceneRenderingShader::uniformLocations.materialSpecularPower, material->specularPower);
-		glUniform1i(SceneRenderingShader::uniformLocations.textureCount, textureCount);
-		glUniform1f(SceneRenderingShader::uniformLocations.textureRepeatCount, textureRepeatCount);
-#ifdef _DEBUG
 		checkErrors();
-#endif
 	}
 
 	float Terrain::getHeightMapFactor(unsigned char* data, int width, int x, int y)
@@ -139,11 +139,11 @@ namespace OpenGL
 	Terrain::Builder& Terrain::Builder::addTexture(std::string texture)
 	{
 		if (++addedTexturesCount == 1)
-			Builder::texture1 = Texture::loadTexture(texture);
+			Builder::texture1 = Texture::loadTexture(texture, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
 		else if (++addedTexturesCount == 2)
-			Builder::texture2 = Texture::loadTexture(texture);
+			Builder::texture2 = Texture::loadTexture(texture, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
 		else if (++addedTexturesCount == 3)
-			Builder::texture3 = Texture::loadTexture(texture);
+			Builder::texture3 = Texture::loadTexture(texture, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
 		else
 		{
 			std::cout << "Eroare la constructia terenului - s-au adaugat prea multe texturi.";

@@ -39,9 +39,7 @@ namespace OpenGL
 		if (data)		// glGenerateMipmap must be called even if mipmapLevel == 0
 		{
 			glGenerateMipmap(GL_TEXTURE_2D);
-#ifdef _DEBUG
 			checkErrors();
-#endif
 		}
 	}
 	Texture::~Texture()
@@ -53,11 +51,9 @@ namespace OpenGL
 		Texture::width = width;
 		Texture::height = height;
 		glTexImage2D(GL_TEXTURE_2D, mipmapLevel, pixelFormat, Texture::width, Texture::height, 0, imageFormat, dataType, 0);
-#ifdef _DEBUG
 		checkErrors();
-#endif
 	}
-	Texture* Texture::loadTexture(std::string filePath, int mipmapLevel)
+	Texture* Texture::loadTexture(std::string filePath, GLenum minFilter, GLenum magFilter, int mipmapLevel)
 	{
 		if (filePath == "" || filePath[filePath.length() - 1] == '/' || filePath[filePath.length() - 1] == '\\')
 			return defaultTexture;
@@ -74,7 +70,7 @@ namespace OpenGL
 			}
 			else
 			{
-				Texture *tex = Builder().setFilePath(filePath).setDimensions(w, h).setData(imagine).setMipmapLevel(mipmapLevel).setFilter(GL_LINEAR_MIPMAP_LINEAR).build();
+				Texture *tex = Builder().setFilePath(filePath).setDimensions(w, h).setData(imagine).setMipmapLevel(mipmapLevel).setFilters(minFilter, magFilter).build();
 				texturi.insert(std::make_pair(filePath, tex));
 				return tex;
 			}
@@ -151,7 +147,8 @@ namespace OpenGL
 		pixelFormat = GL_RGB;
 		imageFormat = GL_RGB;
 		dataType = GL_UNSIGNED_BYTE;
-		filter = GL_NEAREST;
+		minfilter = GL_NEAREST;
+		magfilter = GL_NEAREST;
 		isCubemap = false;
 	}
 	Texture::Builder& Texture::Builder::setFilePath(std::string filePath)
@@ -206,9 +203,10 @@ namespace OpenGL
 		}
 		return *this;
 	}
-	Texture::Builder& Texture::Builder::setFilter(GLenum filter)
+	Texture::Builder& Texture::Builder::setFilters(GLenum minfilter, GLenum magfilter)
 	{
-		Builder::filter = filter;
+		Builder::minfilter = minfilter;
+		Builder::magfilter = magfilter;
 		return *this;
 	}
 	Texture::Builder& Texture::Builder::setIsCubemap(bool isCubemap)
@@ -220,8 +218,8 @@ namespace OpenGL
 	{
 		Texture* tex = new Texture(filePath, width, height, mipmapLevel, pixelFormat, imageFormat, dataType, data);
 		glBindTexture(GL_TEXTURE_2D, tex->tex);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minfilter);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magfilter);
 		return tex;
 	}
 	void OpenGL::Texture::Builder::deleteTexture(Texture* texture)

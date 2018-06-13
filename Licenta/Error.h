@@ -10,6 +10,12 @@ static const char* error_GL_OUT_OF_MEMORY					= "GL_OUT_OF_MEMORY";
 static const char* error_GL_STACK_UNDERFLOW				= "GL_STACK_UNDERFLOW";
 static const char* error_GL_STACK_OVERFLOW					= "GL_STACK_OVERFLOW";
 
-void checkErrors();
+void _checkErrors(const char* file, int line);
+
+#define checkErrors() {_checkErrors(__FILE__, __LINE__);}
+
+#else
+
+#define checkErrors() ;
 
 #endif

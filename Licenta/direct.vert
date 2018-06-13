@@ -8,5 +8,5 @@ out vec2 fragTex;
 void main()
 {
 	gl_Position = transform * vec4(inPosition, 1.0);
-	fragTex = vec2(inTex.x, inTex.y);
+	fragTex = inTex;
 }

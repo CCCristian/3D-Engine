@@ -35,6 +35,13 @@ namespace OpenGL
 		updateTransform();
 		return *this;
 	}
+	Object& Object::setTransform(const glm::mat4 transform)
+	{
+		Object::transform = transform;
+		if (instanceTransformUpdateCallback != nullptr)
+			instanceTransformUpdateCallback(modelInstanceData, this);
+		return *this;
+	}
 	Object& Object::setScale(const float scale)
 	{
 		Object::scale = glm::vec3(scale);

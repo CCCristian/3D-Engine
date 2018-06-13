@@ -2,10 +2,11 @@
 #include <iostream>
 #include "assimp\postprocess.h"
 #include "glm\gtc\matrix_transform.hpp"
+#include "Error.h"
 
 namespace OpenGL
 {
-	Mesh* Model::quadMesh = nullptr;
+	Model* Model::quadModel = nullptr;
 
 	Model::Model(std::string name, int vaosCount)
 	{
@@ -32,7 +33,7 @@ namespace OpenGL
 		{
 			aiString path;
 			scene->mMaterials[i]->GetTexture(aiTextureType_DIFFUSE, 0, &path);
-			Material *mat = new Material(Texture::loadTexture(directory + path.C_Str()));
+			Material *mat = new Material(Texture::loadTexture(directory + path.C_Str(), GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR));
 			aiColor3D col;
 			for (unsigned j = 0; j < scene->mMaterials[i]->mNumProperties; j++)
 			{
@@ -65,7 +66,9 @@ namespace OpenGL
 		// Incarcare meshes
 		meshes.reserve(scene->mNumMeshes);
 		vaos = new GLuint[scene->mNumMeshes];
+		checkErrors();
 		glGenVertexArrays(scene->mNumMeshes, vaos);
+		checkErrors();
 		for (unsigned i = 0; i < scene->mNumMeshes; i++)
 		{
 			meshes.push_back(new Mesh(vaos[i], scene->mMeshes[i], materials[scene->mMeshes[i]->mMaterialIndex]));
@@ -108,17 +111,20 @@ namespace OpenGL
 		delete[] vaos;
 	}
 
-	void Model::prepareShader(int meshObjectIndex) const
+	void Model::prepareShader(int meshObjectIndex, Shader::ShaderType shaderType) const
 	{
-		Material* material = meshObjects[meshObjectIndex]->mesh->getMaterial();
-		glActiveTexture(GL_TEXTURE0 + Shader::samplerValues.colorSampler);
-		glBindTexture(GL_TEXTURE_2D, material->colorTexture->getHandle());
-		glUniform3f(SceneRenderingShader::uniformLocations.materialDiffuseColor, material->diffuseColor.x, material->diffuseColor.y, material->diffuseColor.z);
-		glUniform3f(SceneRenderingShader::uniformLocations.materialSpecularColor, material->specularColor.x, material->specularColor.y, material->specularColor.z);
-		glUniform1f(SceneRenderingShader::uniformLocations.materialSpecularIntensity, material->specularIntensity);
-		glUniform1f(SceneRenderingShader::uniformLocations.materialSpecularPower, material->specularPower);
-		glUniform1i(SceneRenderingShader::uniformLocations.textureCount, 1);
-		glUniform1f(SceneRenderingShader::uniformLocations.textureRepeatCount, 1);
+		if (shaderType == Shader::ShaderType::MainShader)
+		{
+			Material* material = meshObjects[meshObjectIndex]->mesh->getMaterial();
+			glUniform3f(SceneRenderingShader::uniformLocations.materialDiffuseColor, material->diffuseColor.x, material->diffuseColor.y, material->diffuseColor.z);
+			glUniform3f(SceneRenderingShader::uniformLocations.materialSpecularColor, material->specularColor.x, material->specularColor.y, material->specularColor.z);
+			glUniform1f(SceneRenderingShader::uniformLocations.materialSpecularIntensity, material->specularIntensity);
+			glUniform1f(SceneRenderingShader::uniformLocations.materialSpecularPower, material->specularPower);
+			glUniform1i(SceneRenderingShader::uniformLocations.textureCount, 1);
+			glUniform1f(SceneRenderingShader::uniformLocations.textureRepeatCount, 1);
+			glActiveTexture(GL_TEXTURE0 + Shader::samplerValues.colorSampler);
+			glBindTexture(GL_TEXTURE_2D, material->colorTexture->getHandle());
+		}
 	}
 
 	const Model* Model::createModel(std::string name, std::string file)
@@ -128,13 +134,13 @@ namespace OpenGL
 		return mod;
 	}
 
-	const Mesh* Model::getQuadVAO()
+	const Model* Model::getQuadModel()
 	{
-		if (quadMesh == nullptr)
+		if (quadModel == nullptr)
 		{
-			quadMesh = BaseModelGenerator::generateQuad("Texture Quad", nullptr)->getMeshes()[0];
+			quadModel = BaseModelGenerator::generateQuad("Texture Quad", nullptr);
 		}
-		return quadMesh;
+		return quadModel;
 	}
 
 	void Model::constructMeshObjects(aiNode *node, aiMatrix4x4 transform)

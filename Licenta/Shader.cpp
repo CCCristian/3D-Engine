@@ -8,14 +8,13 @@ namespace OpenGL
 	SceneRenderingShader::UniformLocations SceneRenderingShader::uniformLocations;
 	ShadowMapShader::UniformLocations ShadowMapShader::uniformLocations;
 	SkyboxShader::UniformLocations SkyboxShader::uniformLocations;
+	WaterShader::UniformLocations WaterShader::uniformLocations;
 	DirectShader::UniformLocations DirectShader::uniformLocations;
 
-	Shader::Shader(const char *vshaderSource, const char *fshaderSource)
+	Shader::Shader(const char *vshaderSource, const char *fshaderSource, ShaderType shaderType): shaderType(shaderType)
 	{
-#ifdef _DEBUG
-		checkErrors();
-#endif
 		program = createProgram(vshaderSource, fshaderSource);
+		glUseProgram(program);
 	}
 	GLuint Shader::addShader(const char *file, GLenum tip)
 	{
@@ -37,9 +36,6 @@ namespace OpenGL
 		GLint succes;
 		glCompileShader(shader);
 		glGetShaderiv(shader, GL_COMPILE_STATUS, &succes);
-#ifdef _DEBUG
-		checkErrors();
-#endif
 		if (succes)
 		{
 			int dim;
@@ -64,9 +60,6 @@ namespace OpenGL
 			glDeleteShader(shader);
 			exit(1);
 		}
-#ifdef _DEBUG
-		checkErrors();
-#endif
 		return shader;
 	}
 	GLuint Shader::createProgram(const char *vshaderSource, const char *fshaderSource)
@@ -79,9 +72,6 @@ namespace OpenGL
 		GLint succes;
 		glLinkProgram(program);
 		glGetProgramiv(program, GL_LINK_STATUS, &succes);
-#ifdef _DEBUG
-		checkErrors();
-#endif
 		if (!succes)
 		{
 			int dim;
@@ -106,22 +96,62 @@ namespace OpenGL
 			delete info;
 			exit(1);
 		}
-#ifdef _DEBUG
-		checkErrors();
-#endif
 		glDetachShader(program, vshader);
 		glDetachShader(program, fshader);
 		return program;
 	}
+	const Shader& Shader::loadUniform(GLint location, const glm::vec3& vector) const
+	{
+		glUniform3f(location, vector.x, vector.y, vector.z);
+		checkErrors();
+		return *this;
+	}
+	const Shader& Shader::loadUniform(GLint location, float x, float y, float z) const
+	{
+		glUniform3f(location, x, y, z);
+		checkErrors();
+		return *this;
+	}
+	const Shader& Shader::loadUniform(GLint location, const glm::vec4& vector) const
+	{
+		glUniform4f(location, vector.x, vector.y, vector.z, vector.w);
+		checkErrors();
+		return *this;
+	}
+	const Shader& Shader::loadUniform(GLint location, float x, float y, float z, float w) const
+	{
+		glUniform4f(location, x, y, z, w);
+		checkErrors();
+		return *this;
+	}
+	const Shader& Shader::loadUniform(GLint location, const glm::mat4& matrix) const
+	{
+		glUniformMatrix4fv(location, 1, GL_FALSE, reinterpret_cast<const GLfloat *>(&matrix));
+		checkErrors();
+		return *this;
+	}
+	const Shader& Shader::loadUniform(GLint location, int integer) const
+	{
+		glUniform1i(location, integer);
+		checkErrors();
+		return *this;
+	}
+	const Shader& Shader::loadUniform(GLint location, float number) const
+	{
+		glUniform1f(location, number);
+		checkErrors();
+		return *this;
+	}
 	
+	// ------------------------------------------------------------------------------
+	// ------------------------------------------------------------------------------
+	// ------------------------------------------------------------------------------
 
-	SceneRenderingShader::SceneRenderingShader(const char* vshaderSource, const char* fshaderSource): Shader(vshaderSource, fshaderSource)
+	SceneRenderingShader::SceneRenderingShader(const char* vshaderSource, const char* fshaderSource): Shader(vshaderSource, fshaderSource, ShaderType::MainShader)
 	{
 		SceneRenderingShader::loadUniformLocations();
 		SceneRenderingShader::initSamplers();
-#ifdef _DEBUG
 		checkErrors();
-#endif
 	}
 	void SceneRenderingShader::loadUniformLocations()
 	{
@@ -129,6 +159,7 @@ namespace OpenGL
 		uniformLocations.lightSpaceMatrix	= glGetUniformLocation(program, "lightSpaceMatrix");
 		uniformLocations.transform			= glGetUniformLocation(program, "transform");
 		uniformLocations.cameraPosition		= glGetUniformLocation(program, "cameraPosition");
+		uniformLocations.clipPlane			= glGetUniformLocation(program, "clipPlane");
 
 		uniformLocations.materialDiffuseColor		= glGetUniformLocation(program, "materialDiffuseColor");
 		uniformLocations.materialSpecularColor		= glGetUniformLocation(program, "materialSpecularColor");
@@ -140,7 +171,7 @@ namespace OpenGL
 		uniformLocations.ambientLight.intensity			= glGetUniformLocation(program, "ambientLight.intensity");
 
 		uniformLocations.directionalLight.direction			= glGetUniformLocation(program, "directionalLight.direction");
-		uniformLocations.directionalLight.diffuseIntensity	= glGetUniformLocation(program, "directionalLight.diffuseIntensity");
+		uniformLocations.directionalLight.intensity			= glGetUniformLocation(program, "directionalLight.intensity");
 		uniformLocations.directionalLight.diffuseColor		= glGetUniformLocation(program, "directionalLight.diffuseColor");
 		uniformLocations.directionalLight.specularColor		= glGetUniformLocation(program, "directionalLight.specularColor");
 
@@ -190,14 +221,15 @@ namespace OpenGL
 		glUniform1i(uniformLocations.shadowSampler,		samplerValues.shadowSampler);
 	}
 
+	// ------------------------------------------------------------------------------
+	// ------------------------------------------------------------------------------
+	// ------------------------------------------------------------------------------
 
-	ShadowMapShader::ShadowMapShader(const char* vshaderSource, const char* fshaderSource): Shader(vshaderSource, fshaderSource)
+	ShadowMapShader::ShadowMapShader(const char* vshaderSource, const char* fshaderSource): Shader(vshaderSource, fshaderSource, ShaderType::ShadowMapShader)
 	{
 		ShadowMapShader::loadUniformLocations();
 		ShadowMapShader::initSamplers();
-#ifdef _DEBUG
 		checkErrors();
-#endif
 	}
 	void ShadowMapShader::loadUniformLocations()
 	{
@@ -209,14 +241,15 @@ namespace OpenGL
 
 	}
 
+	// ------------------------------------------------------------------------------
+	// ------------------------------------------------------------------------------
+	// ------------------------------------------------------------------------------
 
-	SkyboxShader::SkyboxShader(const char* vshaderSource, const char* fshaderSource): Shader(vshaderSource, fshaderSource)
+	SkyboxShader::SkyboxShader(const char* vshaderSource, const char* fshaderSource): Shader(vshaderSource, fshaderSource, ShaderType::SkyboxShader)
 	{
 		SkyboxShader::loadUniformLocations();
 		SkyboxShader::initSamplers();
-#ifdef _DEBUG
 		checkErrors();
-#endif
 	}
 	void SkyboxShader::loadUniformLocations()
 	{
@@ -228,16 +261,49 @@ namespace OpenGL
 		glUniform1i(uniformLocations.skyboxSampler, samplerValues.skyboxSampler);
 	}
 
+	// ------------------------------------------------------------------------------
+	// ------------------------------------------------------------------------------
+	// ------------------------------------------------------------------------------
 
-	DirectShader::DirectShader(const char* vshaderSource, const char* fshaderSource): Shader(vshaderSource, fshaderSource)
+	WaterShader::WaterShader(const char* vshaderSource, const char* fshaderSource): Shader(vshaderSource, fshaderSource, ShaderType::WaterShader)
+	{
+		WaterShader::loadUniformLocations();
+		WaterShader::initSamplers();
+	}
+	void WaterShader::loadUniformLocations()
+	{
+		uniformLocations.world				= glGetUniformLocation(program, "world");
+		uniformLocations.transform			= glGetUniformLocation(program, "transform");
+		uniformLocations.movement			= glGetUniformLocation(program, "movement");
+		uniformLocations.cameraPosition		= glGetUniformLocation(program, "cameraPosition");
+		uniformLocations.directionalLight	= glGetUniformLocation(program, "directionalLight");
+		uniformLocations.directionalColor	= glGetUniformLocation(program, "directionalColor");
+		uniformLocations.reflectionSampler	= glGetUniformLocation(program, "reflectionSampler");
+		uniformLocations.refractionSampler	= glGetUniformLocation(program, "refractionSampler");
+		uniformLocations.dudvSampler		= glGetUniformLocation(program, "dudvSampler");
+		uniformLocations.normalSampler		= glGetUniformLocation(program, "normalSampler");
+	}
+	void WaterShader::initSamplers()
+	{
+		glUniform1i(uniformLocations.reflectionSampler,	Shader::samplerValues.reflectionSampler);
+		glUniform1i(uniformLocations.refractionSampler,	Shader::samplerValues.refractionSampler);
+		glUniform1i(uniformLocations.dudvSampler,		Shader::samplerValues.dudvSampler);
+		glUniform1i(uniformLocations.normalSampler,		Shader::samplerValues.normalSampler);
+	}
+
+	// ------------------------------------------------------------------------------
+	// ------------------------------------------------------------------------------
+	// ------------------------------------------------------------------------------
+
+	DirectShader::DirectShader(const char* vshaderSource, const char* fshaderSource): Shader(vshaderSource, fshaderSource, ShaderType::DirectShader)
 	{
 		DirectShader::loadUniformLocations();
 		DirectShader::initSamplers();
 	}
 	void DirectShader::loadUniformLocations()
 	{
-		uniformLocations.transform = glGetUniformLocation(program, "transform");
-		uniformLocations.colorSampler = glGetUniformLocation(program, "colorSampler");
+		uniformLocations.transform		= glGetUniformLocation(program, "transform");
+		uniformLocations.colorSampler	= glGetUniformLocation(program, "colorSampler");
 	}
 	void DirectShader::initSamplers()
 	{

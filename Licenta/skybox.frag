@@ -2,7 +2,7 @@
 
 uniform samplerCube skyboxSampler;
 in vec3 tex;
-out vec4 gl_FragColor;
+layout(location = 0) out vec4 gl_FragColor;
 
 void main()
 {

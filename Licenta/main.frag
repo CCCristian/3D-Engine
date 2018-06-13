@@ -8,7 +8,7 @@ struct AmbientLight
 struct DirectionalLight
 {
 	vec3 direction;
-	float diffuseIntensity;
+	float intensity;
 	vec3 diffuseColor;
 	vec3 specularColor;
 };
@@ -80,13 +80,13 @@ vec3 calcAmbientLight(vec4 fragmentColor)
 vec3 calcDirectionalLight(vec4 fragmentColor, vec3 normal, vec3 fragmentToEye)
 {
 	// Computing the diffuse component for the directional light
-	float diffuseFactor = directionalLight.diffuseIntensity * max(dot(normal, normalize(-directionalLight.direction)), 0);
+	float diffuseFactor = directionalLight.intensity * max(dot(normal, normalize(-directionalLight.direction)), 0);
 	vec3 diffuseComponent = fragmentColor.xyz * materialDiffuseColor * directionalLight.diffuseColor * diffuseFactor;
 	
 	// Computing the specular component for the directional light
 	vec3 reflectedLight = normalize(reflect(normalize(directionalLight.direction), normal));
 	float specularFactor = max(dot(reflectedLight, fragmentToEye), 0);
-	vec3 specularComponent = fragmentColor.xyz * materialSpecularColor * directionalLight.specularColor * (materialSpecularIntensity * pow(specularFactor, materialSpecularPower));
+	vec3 specularComponent = directionalLight.intensity * fragmentColor.xyz * materialSpecularColor * directionalLight.specularColor * (materialSpecularIntensity * pow(specularFactor, materialSpecularPower));
 
 	// This is the directional light effect
 	vec3 directionalComponent = diffuseComponent + specularComponent;

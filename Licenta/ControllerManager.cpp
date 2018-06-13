@@ -4,6 +4,7 @@
 #include "Framebuffer.h"
 #include "Object.h"
 #include "Terrain.h"
+#include "Error.h"
 
 
 InputManager Input;
@@ -20,21 +21,52 @@ void ControllerManager::init()
 
 	scena = new OpenGL::Scene();
 	OpenGL::activeScene = scena;
-	scena->getCamera()->translateBy(glm::vec3(0, -3, 1));
+	scena->getCamera()->translateBy(glm::vec3(0, -3, 3));
 	scena->setSkybox(new OpenGL::Skybox("Resurse/Skyboxes/Skybox1/Right.tga", "Resurse/Skyboxes/Skybox1/Left.tga", "Resurse/Skyboxes/Skybox1/Front.tga", "Resurse/Skyboxes/Skybox1/Back.tga", "Resurse/Skyboxes/Skybox1/Up.tga", "Resurse/Skyboxes/Skybox1/Down.tga"));
 	
 	scena->setAmbientLight(glm::vec3(.6f, .8f, .8f), .15f);
-	//scena->addDirectionalLight(-glm::vec3(0.850026, 0.10232, 0.516707), 1.2f, glm::vec3((float)243/256, (float)228 / 256, (float)194 / 256), glm::vec3(1, 1, 1));
-	//scena->addPointLight(glm::vec3(-0.5f, 0, 0), /*6.5f*/0, 1, 1, 1.f, glm::vec3(1, 1, 1), glm::vec3(1, 1, 1));
+	scena->addDirectionalLight(-glm::vec3(0.850026, 0.10232, 0.516707), 1.2f, glm::vec3((float)243/256, (float)228 / 256, (float)194 / 256), glm::vec3(1, 1, 1));
+	scena->addPointLight(glm::vec3(-0.5f, 0, 0), /*6.5f*/0, 1, 1, 1.f, glm::vec3(1, 1, 1), glm::vec3(1, 1, 1));
 	scena->addSpotLight(glm::vec3(2, 0, 2.7), glm::vec3(0, 0, -1), 15, 30, 11.8f, 0.2f, 0.4f, 1.f);
 	//scena->setSpotLight(glm::vec3(0, 0, 1), glm::vec3(0, 0, -1), 15, 11.8f, 0.02f, 0.04f, 1.f);
 	//scena->addSpotLight(glm::vec3(2, 2, 3), glm::vec3(0, 0, -1), 15, 30, 1.8f, 0.2f, 0.4f, 1.f);
 
-	//const OpenGL::Model *teren = OpenGL::Terrain::Builder().addTexture("Resurse/Texturi/Grass.bmp").setTextureRepeatCount(50).setMaxHeight(10).setHeightMapFile("Resurse/Texturi/Heightmap.png").build();
+	const OpenGL::Model *teren = OpenGL::Terrain::Builder().addTexture("Resurse/Texturi/Grass.bmp").setTextureRepeatCount(50).setMaxHeight(2).setHeightMapFile("Resurse/Terenuri/DoubleBasin_big.png").build();
 	const OpenGL::Model *casa1 = OpenGL::Model::createModel("casa1", "Resurse/Modele/247_House 15_obj/247_House 15_obj.obj");
 	const OpenGL::Model *casa2 = OpenGL::Model::createModel("casa2", "Resurse/Modele/Farmhouse Maya 2016 Updated/farmhouse_obj.obj");
-	//const OpenGL::Model *tree = OpenGL::Model::createModel("tree", "Resurse/Modele/Tree/Tree poplar N151117.obj");
-	const OpenGL::Model *quad = OpenGL::Model::BaseModelGenerator::generateQuad("quad", "Resurse/Texturi/Grass.bmp", 100);
+	const OpenGL::Model *tree = OpenGL::Model::createModel("tree", "Resurse/Modele/Tree/Tree poplar N151117.obj");
+	//const OpenGL::Model *tree = OpenGL::Model::createModel("tree", "Resurse/Modele/MapleTree/MapleTree.obj");
+	//const OpenGL::Model *tree = OpenGL::Model::createModel("tree", "Resurse/Modele/FirTree/fir.obj");
+	//const OpenGL::Model *quad = OpenGL::Model::BaseModelGenerator::generateQuad("quad", "Resurse/Texturi/Grass.bmp", 100);
+
+	OpenGL::Object *house = scena->addObject(new OpenGL::Object(casa1));
+	house->setPosition(glm::vec3(-7, 3, 1.8));
+	house->setRotation(glm::vec3(glm::pi<float>()/2, 0.0f, 0.0f));
+	house->setScale(glm::vec3(0.01f, 0.01f, 0.01f));
+
+	house = scena->addObject(new OpenGL::Object(casa2));
+	house->setPosition(glm::vec3(-2, 3, 1.5));
+	house->setRotation(glm::vec3(glm::pi<float>() / 2, 0.0f, 0.0f));
+	house->setScale(glm::vec3(0.1f, 0.1f, 0.1f));
+
+	scena->addWaterBody(1.5, 50, -50, 50, -50);
+	OpenGL::Object *terenOb = &scena->addObject(new OpenGL::Object(teren))->setPosition(0, 0, 0).setScale(50, 50, 1);
+
+	const float step = 3.5f;
+	const float scale = 0.0015f;
+	for (float i = -10; i <= 10; i += 2 * step)
+		for (float j = -10; j <= 10; j += 2 * step)
+		{
+			scena->addObject(new OpenGL::Object(tree))->setPosition(glm::vec3(i + distr(random) * 3, j + distr(random) * 3, 0) + glm::vec3(8, -5, 1.6)).setScale(glm::vec3(scale, scale, scale)).setRotation(glm::vec3(glm::pi<float>() / 2, 0, 0));
+		}
+
+	//OpenGL::Object *ob;
+	//ob = scena->addObject(new OpenGL::Object(quad));
+	//ob->setPosition(glm::vec3(0, 0, -0.1));
+	//ob->setScale(glm::vec3(50, 50, 50));
+
+
+
 
 	//const OpenGL::Model *weed = OpenGL::Model::createModel("weed", "Resurse/Modele/Weed3/grass-block.obj");
 	//const float step = 0.05f;
@@ -45,30 +77,6 @@ void ControllerManager::init()
 	//	}
 
 	//scena->addObject(new OpenGL::Object(weed))->setPosition(glm::vec3(0, 0, 0)).setScale(glm::vec3(0.1, 0.1, 0.1)).setRotation(glm::vec3(glm::pi<float>() / 2, 0, 0));
-
-	OpenGL::Object *house = scena->addObject(new OpenGL::Object(casa1));
-	house->setPosition(glm::vec3(2, 3, 0.2));
-	house->setRotation(glm::vec3(glm::pi<float>()/2, 0.0f, 0.0f));
-	house->setScale(glm::vec3(0.01f, 0.01f, 0.01f));
-
-	house = scena->addObject(new OpenGL::Object(casa2));
-	house->setPosition(glm::vec3(-2, 3, 0));
-	house->setRotation(glm::vec3(glm::pi<float>() / 2, 0.0f, 0.0f));
-	house->setScale(glm::vec3(0.1f, 0.1f, 0.1f));
-
-	//OpenGL::Object *terenOb = &scena->addObject(new OpenGL::Object(teren))->setPosition(0, 0, 0).setScale(50, 50, 1);
-
-	//const float step = 1.8f;
-	//for (float i = -10; i <= 10; i += 2 * step)
-	//	for (float j = -10; j <= 10; j += 2 * step)
-	//	{
-	//		scena->addObject(new OpenGL::Object(tree))->setPosition(glm::vec3(i + distr(random) * 3, j + distr(random) * 3, 0) + glm::vec3(-10, -15, 0)).setScale(glm::vec3(0.001, 0.001, 0.001)).setRotation(glm::vec3(glm::pi<float>() / 2, 0, 0));
-	//	}
-
-	OpenGL::Object *ob;
-	ob = scena->addObject(new OpenGL::Object(quad));
-	ob->setPosition(glm::vec3(0, 0, -0.1));
-	ob->setScale(glm::vec3(50, 50, 50));
 }
 
 void ControllerManager::update()

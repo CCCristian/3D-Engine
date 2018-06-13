@@ -29,18 +29,22 @@ namespace OpenGL
 		void (*instanceTransformUpdateCallback)(ModelInstanceData *, Object *);
 	public:
 		Object(const Model *model);
+
 		const Model* getModel() const			{ return model; }
 		const glm::vec3 getPosition() const		{ return position; }
 		const glm::quat getRotation() const		{ return rotation; }
 		const glm::vec3 getScale() const		{ return scale; }
 		const glm::mat4* getTransform() const	{ return &transform; }
+
 		Object& setPosition(float x, float y, float z);
 		Object& setPosition(const glm::vec3 position);
 		Object& setRotation(const glm::vec3 eulerAngles);
+		Object& setTransform(const glm::mat4 transform);
 		Object& setScale(const float scale);
 		Object& setScale(float x, float y, float z);
 		Object& setScale(const glm::vec3 scale);
 		Object& setInstanceTransformUpdateData(ModelInstanceData *, void (*instanceTransformUpdateCallback)(ModelInstanceData *, Object *));
+
 		Object& translateBy(const glm::vec3 translation);
 		Object& rotateX(const float angle);
 		Object& rotateY(const float angle);

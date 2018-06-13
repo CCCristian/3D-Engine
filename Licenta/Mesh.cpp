@@ -47,6 +47,10 @@ namespace OpenGL
 		glEnableVertexAttribArray(2);
 		glEnableVertexAttribArray(3);
 #ifdef USE_INSTANCED_RENDERING
+		glEnableVertexAttribArray(5);
+		glEnableVertexAttribArray(6);
+		glEnableVertexAttribArray(7);
+		glEnableVertexAttribArray(8);
 		glVertexAttribDivisor(5, 1);
 		glVertexAttribDivisor(6, 1);
 		glVertexAttribDivisor(7, 1);
@@ -56,9 +60,7 @@ namespace OpenGL
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexCount * sizeof(unsigned), &indici[0], GL_STATIC_DRAW);
 
-#ifdef _DEBUG
 		checkErrors();
-#endif
 	}
 
 	Mesh::Mesh(const GLuint vao, const std::vector<glm::vec3>& positions, const std::vector<glm::vec3>& normals, const std::vector<glm::vec2>& texCoords, const std::vector<unsigned>& indices, Material *material)
@@ -87,6 +89,10 @@ namespace OpenGL
 		glEnableVertexAttribArray(2);
 		glEnableVertexAttribArray(3);
 #ifdef USE_INSTANCED_RENDERING
+		glEnableVertexAttribArray(5);
+		glEnableVertexAttribArray(6);
+		glEnableVertexAttribArray(7);
+		glEnableVertexAttribArray(8);
 		glVertexAttribDivisor(5, 1);
 		glVertexAttribDivisor(6, 1);
 		glVertexAttribDivisor(7, 1);
@@ -96,9 +102,7 @@ namespace OpenGL
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexCount * sizeof(unsigned), &indices[0], GL_STATIC_DRAW);
 
-#ifdef _DEBUG
 		checkErrors();
-#endif
 	}
 
 	Mesh::~Mesh()

@@ -18,10 +18,13 @@ namespace OpenGL
 			Color, DepthOnly
 		};
 		Framebuffer(FramebufferType type, bool cubemap = false);
+		Framebuffer(const Framebuffer&) = delete;
 		~Framebuffer();
-		GLuint getHandle()				{ return fbo; }
-		Texture* getColorTexture()		{ return colorTexture; }
-		Texture* getDepthTexture()		{ return depthTexture; }
+		void useAndClear() const;
+		void bind() const;
+		GLuint getHandle() const			{ return fbo; }
+		Texture* getColorTexture() const	{ return colorTexture; }
+		Texture* getDepthTexture() const	{ return depthTexture; }
 
 		/** Resize the framebuffer's texture to the given dimensions. */
 		void resize(int width, int height);

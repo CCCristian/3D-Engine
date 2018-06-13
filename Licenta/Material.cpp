@@ -6,7 +6,7 @@ namespace OpenGL
 
 	Material::Material()
 	{
-		Material::colorTexture = nullptr;
+		Material::colorTexture = Texture::getDefaultTexture();
 		Material::colorTexture2 = nullptr;
 		Material::colorTexture3 = nullptr;
 		Material::specularTexture = nullptr;
@@ -20,12 +20,14 @@ namespace OpenGL
 	}
 	Material::Material(Texture *colorTexture, Texture *normalTexture): Material()
 	{
-		Material::colorTexture = colorTexture;
+		if (colorTexture != nullptr)
+			Material::colorTexture = colorTexture;
 		Material::normalTexture = normalTexture;
 	}
 	Material::Material(Texture *colorTexture, Texture *colorTexture2, Texture *colorTexture3): Material()
 	{
-		Material::colorTexture = colorTexture;
+		if (colorTexture != nullptr)
+			Material::colorTexture = colorTexture;
 		Material::colorTexture2 = colorTexture2;
 		Material::colorTexture3 = colorTexture3;
 	}

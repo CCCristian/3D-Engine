@@ -39,9 +39,7 @@ namespace OpenGL
 			return 0;
 		}();
 
-#ifdef _DEBUG
 		checkErrors();
-#endif
 	}
 	Skybox::~Skybox()
 	{

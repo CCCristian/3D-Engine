@@ -28,8 +28,11 @@ namespace OpenGL
 	public:
 		DirectionalLight(glm::vec3 direction, float diffuseIntensity, glm::vec3 diffuseColor, glm::vec3 specularColor);
 		~DirectionalLight() {}
+		glm::vec3 getDirection() const		{ return direction; }
+		glm::vec3 getDiffuseColor() const	{ return diffuseColor; }
+		glm::vec3 getSpecularColor() const	{ return specularColor; }
+		glm::mat4* getShadowMapMatrix()		{ return &shadowMapMatrix; }
 		void setDirection(glm::vec3 direction);
-		glm::mat4* getShadowMapMatrix()			{ return &shadowMapMatrix; }
 	};
 	class PointLight: public Light
 	{

@@ -2,6 +2,7 @@
 
 #include "GL\glew.h"
 #include "GL\freeglut.h"
+#include "glm.hpp"
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -18,10 +19,25 @@ namespace OpenGL
 		virtual void initSamplers() = 0;
 
 	public:
-		Shader(const char *vshaderSource, const char *fshaderSource);
-		~Shader()			{ glDeleteProgram(program); }
-		GLuint getHandle()	{ return program; }
-		void use()			{ glUseProgram(program); }
+		enum ShaderType
+		{
+			MainShader,
+			ShadowMapShader,
+			SkyboxShader,
+			WaterShader,
+			DirectShader
+		};
+		Shader(const char *vshaderSource, const char *fshaderSource, ShaderType shaderType);
+		~Shader()					{ glDeleteProgram(program); }
+		GLuint getHandle() const	{ return program; }
+		const ShaderType shaderType;
+		const Shader& loadUniform(GLint location, const glm::vec3& vector) const;
+		const Shader& loadUniform(GLint location, float x, float y, float z) const;
+		const Shader& loadUniform(GLint location, const glm::vec4& vector) const;
+		const Shader& loadUniform(GLint location, float x, float y, float z, float w) const;
+		const Shader& loadUniform(GLint location, const glm::mat4& matrix) const;
+		const Shader& loadUniform(GLint location, int integer) const;
+		const Shader& loadUniform(GLint location, float number) const;
 
 
 	private:
@@ -33,10 +49,13 @@ namespace OpenGL
 			GLint blendSampler = 3;
 			GLint specularSampler = 4;
 			GLint normalSampler = 5;
-			GLint lightSampler = 6;
-			GLint heightSampler = 7;
-			GLint shadowSampler = 8;
-			GLint skyboxSampler = 9;
+			GLint dudvSampler = 6;
+			GLint lightSampler = 7;
+			GLint heightSampler = 8;
+			GLint shadowSampler = 9;
+			GLint skyboxSampler = 10;
+			GLint reflectionSampler = 11;
+			GLint refractionSampler = 12;
 		};
 	public:
 		static const SamplerValues samplerValues;
@@ -56,7 +75,7 @@ namespace OpenGL
 			struct DirectionalLight
 			{
 				GLint direction;
-				GLint diffuseIntensity;
+				GLint intensity;
 				GLint diffuseColor;
 				GLint specularColor;
 			};
@@ -89,6 +108,7 @@ namespace OpenGL
 			GLint lightSpaceMatrix;
 			GLint transform;
 			GLint cameraPosition;
+			GLint clipPlane;
 
 			GLint materialDiffuseColor;
 			GLint materialSpecularColor;
@@ -150,6 +170,30 @@ namespace OpenGL
 	public:
 		static UniformLocations uniformLocations;
 		SkyboxShader(const char *vshaderSource, const char *fshaderSource);
+	};
+
+	class WaterShader: public Shader
+	{
+		struct UniformLocations
+		{
+			GLint world;
+			GLint transform;
+			GLint movement;
+			GLint cameraPosition;
+			GLint directionalLight;
+			GLint directionalColor;
+			GLint reflectionSampler;
+			GLint refractionSampler;
+			GLint dudvSampler;
+			GLint normalSampler;
+		};
+
+	protected:
+		virtual void loadUniformLocations();
+		virtual void initSamplers();
+	public:
+		static UniformLocations uniformLocations;
+		WaterShader(const char *vshaderSource, const char *fshaderSource);
 	};
 
 	class DirectShader: public Shader
