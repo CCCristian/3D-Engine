@@ -12,6 +12,8 @@ namespace OpenGL
 	protected:
 		Framebuffer shadowMap;
 		glm::mat4 shadowMapMatrix;
+		glm::mat4 shadowViewMatrix;
+		glm::mat4 shadowProjectionMatrix;
 	public:
 		Light(bool isPointLight);
 		virtual ~Light() {}
@@ -25,14 +27,20 @@ namespace OpenGL
 		float diffuseIntensity;
 		glm::vec3 diffuseColor;
 		glm::vec3 specularColor;
+
+		glm::vec3 position;		// For shadow mapping
 	public:
 		DirectionalLight(glm::vec3 direction, float diffuseIntensity, glm::vec3 diffuseColor, glm::vec3 specularColor);
 		~DirectionalLight() {}
-		glm::vec3 getDirection() const		{ return direction; }
-		glm::vec3 getDiffuseColor() const	{ return diffuseColor; }
-		glm::vec3 getSpecularColor() const	{ return specularColor; }
-		glm::mat4* getShadowMapMatrix()		{ return &shadowMapMatrix; }
+		void computeShadowMatrix();
+		glm::vec3 getDirection() const			{ return direction; }
+		glm::vec3 getDiffuseColor() const		{ return diffuseColor; }
+		glm::vec3 getSpecularColor() const		{ return specularColor; }
+		glm::mat4* getShadowMapMatrix()			{ return &shadowMapMatrix; }
+		glm::mat4* getShadowViewMatrix()		{ return &shadowViewMatrix; }
+		glm::mat4* getShadowProjectionMatrix()	{ return &shadowProjectionMatrix; }
 		void setDirection(glm::vec3 direction);
+		void setPosition(glm::vec3 position);
 	};
 	class PointLight: public Light
 	{
@@ -65,8 +73,11 @@ namespace OpenGL
 	public:
 		SpotLight(glm::vec3 position, glm::vec3 direction, float innerAngleInDegrees, float outerAngleInDegrees, float power, float quadraticFactor, float linearFactor, float constantFactor, glm::vec3 diffuseColor, glm::vec3 specularColor);
 		~SpotLight() {}
+		void computeShadowMatrix();
 		glm::vec3 getPosition() const			{ return position; };
 		void setPosition(glm::vec3 position);
 		glm::mat4* getShadowMapMatrix()			{ return &shadowMapMatrix; }
+		glm::mat4* getShadowViewMatrix()		{ return &shadowViewMatrix; }
+		glm::mat4* getShadowProjectionMatrix()	{ return &shadowProjectionMatrix; }
 	};
 }

@@ -14,7 +14,6 @@ namespace OpenGL
 {
 	class Mesh
 	{
-		friend class Renderer;
 		struct Vertex;
 
 		GLuint vao, vbo, ibo;
@@ -25,6 +24,7 @@ namespace OpenGL
 	public:
 		Mesh(const GLuint vao, const aiMesh* meshData, Material *material);
 		Mesh(const GLuint vao, const std::vector<glm::vec3>& positions, const std::vector<glm::vec3>& normals, const std::vector<glm::vec2>& texCoords, const std::vector<unsigned>& indices, Material *material);
+		Mesh(const Mesh&) = delete;
 		~Mesh();
 		GLuint getHandle() const		{ return vao; }
 		Material* getMaterial() const	{ return material; }

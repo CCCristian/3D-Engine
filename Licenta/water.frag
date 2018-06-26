@@ -12,7 +12,7 @@ in vec4 clipPosition;
 in vec3 worldPosition;
 in vec2 texCoords;
 out vec4 gl_FragColor;
-const float displacementPower = 0.02;
+const float displacementPower = 0.03;
 const float shininess = 15;
 const float reflectivity = 0.6;
 

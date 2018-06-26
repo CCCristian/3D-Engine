@@ -13,7 +13,7 @@ namespace OpenGL
 				waterShader("water.vert", "water.frag"),
 				directShader("direct.vert", "direct.frag")
 	{
-		renderer.useShader(sceneShader);
+		renderer.useShaderProgram(sceneShader);
 		scenes.insert(this);
 
 		camera = new Camera(16.f / 9.f, glm::pi<float>() / 3, 0.01f, 100.f);
@@ -55,12 +55,35 @@ namespace OpenGL
 		delete camera;
 		scenes.erase(this);
 	}
-	void Scene::drawSceneObjects(std::map<const Model*, ModelInstanceData*>& instances, bool drawForShadowMap)
+	void Scene::drawSceneObjects(const Framebuffer* framebuffer)
 	{
+		// Shadow maps rendering pass
+		renderer.useShaderProgram(shadowMapShader);
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, directionalLight->getShadowFramebuffer()->getHandle());
+		glUniformMatrix4fv(ShadowMapShader::uniformLocations.lightMatrix, 1, GL_FALSE, (const GLfloat*)directionalLight->getShadowMapMatrix());
+		glClear(GL_DEPTH_BUFFER_BIT);
 		for (auto it = instances.begin(), sf = instances.end(); it != sf; it++)
 		{
-			renderer.draw(*it->second, drawForShadowMap);
+			renderer.draw(*it->second, true);
 		}
+		checkErrors();
+
+
+		// Objects rendering pass
+		renderer.useShaderProgram(sceneShader);
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, directionalLight->getShadowFramebuffer()->getHandle());
+		glActiveTexture(GL_TEXTURE0 + Shader::samplerValues.shadowSampler);
+		glBindTexture(GL_TEXTURE_2D, directionalLight->getShadowFramebuffer()->getDepthTexture()->getHandle());
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffer == nullptr ? 0 : framebuffer->getHandle());
+		uploadWorldMatrixToShader(sceneShader, camera->getWorldMatrix());
+		glm::vec3 position = camera->getPosition();
+		sceneShader.loadUniform(sceneShader.uniformLocations.cameraPosition, position.x, position.y, position.z);
+		glUniformMatrix4fv(sceneShader.uniformLocations.lightSpaceMatrix, 1, GL_FALSE, (const GLfloat *)directionalLight->getShadowMapMatrix());
+		for (auto it = instances.begin(), sf = instances.end(); it != sf; it++)
+		{
+			renderer.draw(*it->second, false);
+		}
+		checkErrors();
 	}
 
 	/** X and Y are the normalized screen coordinates (-1, 1) of the upper left corner. */
@@ -76,10 +99,12 @@ namespace OpenGL
 		transform = glm::scale(transform, glm::vec3(width / 2, height / 2, 0));
 		transform = glm::translate(transform, glm::vec3(1, 1, 0));
 		glUniformMatrix4fv(directShader.uniformLocations.transform, 1, GL_FALSE, reinterpret_cast<const GLfloat*>(&transform));
-		
+
+		checkErrors();
 		glDepthMask(GL_FALSE);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		glDepthMask(GL_TRUE);
+		checkErrors();
 	}
 	void Scene::uploadWorldMatrixToShader(const Shader& shader, const glm::mat4& world)
 	{
@@ -103,16 +128,23 @@ namespace OpenGL
 			glDepthMask(GL_TRUE);
 		}
 	}
+	void Scene::drawSkybox(const glm::mat4& projectionMatrix, const glm::mat4& viewMatrix)
+	{
+		if (skybox != nullptr)
+		{
+			glm::mat4 world = projectionMatrix * glm::mat4(glm::mat3(viewMatrix));
+			glDepthMask(GL_FALSE);
+			renderer.draw(skybox, world);
+			glDepthMask(GL_TRUE);
+		}
+	}
 	void Scene::drawAll()
 	{
-		static DirectionalLight *dirLight = *directionalLights.begin();
-		static SpotLight *light = *spotLights.begin();
-
 		// Clear all framebuffers
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		//glBindFramebuffer(GL_FRAMEBUFFER, light->getShadowFramebuffer()->getHandle());
-		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glBindFramebuffer(GL_FRAMEBUFFER, directionalLight->getShadowFramebuffer()->getHandle());
+		glClear(GL_DEPTH_BUFFER_BIT);
 		for (Water* water : waterBodies)
 		{
 			water->getReflectionFramebuffer().useAndClear();
@@ -124,7 +156,7 @@ namespace OpenGL
 		//fa.clear();  fb.clear();
 
 		// Skybox rendering
-		renderer.useShader(skyboxShader);
+		renderer.useShaderProgram(skyboxShader);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		drawSkybox();
 		camera->invertPitch();
@@ -140,48 +172,7 @@ namespace OpenGL
 			drawSkybox();
 		}
 
-		//// Shadow maps rendering pass
-		//shadowMapShader.use();
-		//glBindFramebuffer(GL_DRAW_FRAMEBUFFER, light->getShadowFramebuffer()->getHandle());
-		//glUniformMatrix4fv(ShadowMapShader::uniformLocations.lightMatrix, 1, GL_FALSE, (const GLfloat*)light->getShadowMapMatrix());
-		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		//drawSceneObjects(renderer, instances, false);
-
-		//static int done = 0;
-		//if (done == 0)
-		//{
-		//	done = 1;
-		//	float *buf = new float[1000 * 600];
-		//	glBindTexture(GL_TEXTURE_2D, light->getShadowFramebuffer()->getDepthTexture()->getHandle());
-		//	glGetTexImage(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, GL_FLOAT, buf);
-		//	float first = buf[0];
-		//	bool lafel = true;
-		//	std::cout << buf[0] << '\n';
-		//	for (int i = 0; i < 1000 * 600; i++)
-		//	{
-		//		if (buf[i] != first)
-		//		{
-		//			lafel = false;
-		//			std::cout << buf[i] << '\n';
-		//		}
-		//	}
-		//	delete[] buf;
-		//	if (!lafel)
-		//		std::cout << "Difera\n";
-		//}
-
-
-		// Objects rendering pass
-		renderer.useShader(sceneShader);
-		glBindFramebuffer(GL_READ_FRAMEBUFFER, light->getShadowFramebuffer()->getHandle());
-		glActiveTexture(GL_TEXTURE0 + Shader::samplerValues.shadowSampler);
-		glBindTexture(GL_TEXTURE_2D, light->getShadowFramebuffer()->getDepthTexture()->getHandle());
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		uploadWorldMatrixToShader(sceneShader, camera->getWorldMatrix());
-		glm::vec3 position = camera->getPosition();
-		sceneShader.loadUniform(sceneShader.uniformLocations.cameraPosition, position.x, position.y, position.z);
-		glUniformMatrix4fv(sceneShader.uniformLocations.lightSpaceMatrix, 1, GL_FALSE, (const GLfloat *)light->getShadowMapMatrix());
-		drawSceneObjects(instances, false);
+		drawSceneObjects();
 
 		static float movement = 0.0f;
 		movement = std::fmod((float)TimeManager::elapsedMilliseconds()/35000, 1.f);
@@ -198,9 +189,9 @@ namespace OpenGL
 			sceneShader.loadUniform(sceneShader.uniformLocations.cameraPosition, position.x, position.y, position.z);
 			uploadWorldMatrixToShader(sceneShader, camera->getWorldMatrix());
 			water->getReflectionFramebuffer().bind();
-			renderer.useShader(sceneShader);
+			renderer.useShaderProgram(sceneShader);
 			glEnable(GL_CLIP_DISTANCE0);
-			drawSceneObjects(instances, false);
+			drawSceneObjects(&water->getReflectionFramebuffer());
 			glDisable(GL_CLIP_DISTANCE0);
 
 			// Render refraction
@@ -211,30 +202,29 @@ namespace OpenGL
 			sceneShader.loadUniform(sceneShader.uniformLocations.cameraPosition, position.x, position.y, position.z);
 			uploadWorldMatrixToShader(sceneShader, camera->getWorldMatrix());
 			water->getRefractionFramebuffer().bind();
-			renderer.useShader(sceneShader);
+			renderer.useShaderProgram(sceneShader);
 			glEnable(GL_CLIP_DISTANCE0);
-			drawSceneObjects(instances, false);
+			drawSceneObjects(&water->getRefractionFramebuffer());
 			glDisable(GL_CLIP_DISTANCE0);
 
 			// Combining reflection with refraction
-			renderer.useShader(directShader);
+			renderer.useShaderProgram(directShader);
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
-			//drawTextureOnScreen(water->getReflectionFramebuffer().getColorTexture(), -1.f, 1.f, 0.8f, 0.8f);
-			//drawTextureOnScreen(water->getRefractionFramebuffer().getColorTexture(), 0.f, 1.f, 0.8f, 0.8f);
 
 
-			renderer.useShader(waterShader);
+			renderer.useShaderProgram(waterShader);
 			uploadWorldMatrixToShader(waterShader, camera->getWorldMatrix());
 			waterShader.loadUniform(waterShader.uniformLocations.cameraPosition, camera->getPosition());
-			waterShader.loadUniform(waterShader.uniformLocations.directionalLight, dirLight->getDirection());
-			waterShader.loadUniform(waterShader.uniformLocations.directionalColor, dirLight->getSpecularColor());
+			waterShader.loadUniform(waterShader.uniformLocations.directionalLight, directionalLight->getDirection());
+			waterShader.loadUniform(waterShader.uniformLocations.directionalColor, directionalLight->getSpecularColor());
 			waterShader.loadUniform(waterShader.uniformLocations.movement, movement);
 			renderer.draw(*water);
+			checkErrors();
 		}
 
-
-
-		renderer.useShader(sceneShader);
+		renderer.useShaderProgram(directShader);
+		//drawTextureOnScreen(shadowLight->getShadowFramebuffer()->getDepthTexture(), 0.1f, 0.9f, 0.8f, 0.8f);
+		renderer.useShaderProgram(sceneShader);
 		checkErrors();
 	}
 	Object* Scene::addObject(Object *ob)
@@ -281,16 +271,18 @@ namespace OpenGL
 		sceneShader.loadUniform(sceneShader.uniformLocations.ambientLight.intensity, ambientLight.intensity);
 	}
 
-	void Scene::addDirectionalLight(glm::vec3 direction, float diffuseIntensity, glm::vec3 diffuseColor, glm::vec3 specularColor)
+	DirectionalLight* Scene::setDirectionalLight(glm::vec3 direction, float diffuseIntensity, glm::vec3 diffuseColor, glm::vec3 specularColor)
 	{
-		DirectionalLight *directionalLight = new DirectionalLight(direction, diffuseIntensity, diffuseColor, specularColor);
-		directionalLights.insert(directionalLight);
+		if (directionalLight != nullptr)
+			delete directionalLight;
+		directionalLight = new DirectionalLight(direction, diffuseIntensity, diffuseColor, specularColor);
 		sceneShader.loadUniform(sceneShader.uniformLocations.directionalLight.intensity, diffuseIntensity);
 		sceneShader.loadUniform(sceneShader.uniformLocations.directionalLight.direction, direction.x, direction.y, direction.z);
 		sceneShader.loadUniform(sceneShader.uniformLocations.directionalLight.diffuseColor, diffuseColor.r, diffuseColor.g, diffuseColor.b);
 		sceneShader.loadUniform(sceneShader.uniformLocations.directionalLight.specularColor, specularColor.r, specularColor.g, specularColor.b);
+		return directionalLight;
 	}
-	void Scene::addPointLight(glm::vec3 position, float power, float quadraticFactor, float linearFactor, float constantFactor, glm::vec3 diffuseColor, glm::vec3 specularColor)
+	PointLight* Scene::addPointLight(glm::vec3 position, float power, float quadraticFactor, float linearFactor, float constantFactor, glm::vec3 diffuseColor, glm::vec3 specularColor)
 	{
 		PointLight *pointLight = new PointLight(position, power, quadraticFactor, linearFactor, constantFactor, diffuseColor, specularColor);
 		pointLights.insert(pointLight);
@@ -301,9 +293,10 @@ namespace OpenGL
 		sceneShader.loadUniform(sceneShader.uniformLocations.pointLight.constantFactor, constantFactor);
 		sceneShader.loadUniform(sceneShader.uniformLocations.pointLight.diffuseColor, diffuseColor.x, diffuseColor.y, diffuseColor.z);
 		sceneShader.loadUniform(sceneShader.uniformLocations.pointLight.specularColor, specularColor.x, specularColor.y, specularColor.z);
+		return pointLight;
 	}
 
-	void Scene::addSpotLight(glm::vec3 position, glm::vec3 direction, float innerAngleInDegrees, float outerAngleInDegrees, float power, float quadraticFactor, float linearFactor, float constantFactor, glm::vec3 diffuseColor, glm::vec3 specularColor)
+	SpotLight* Scene::addSpotLight(glm::vec3 position, glm::vec3 direction, float innerAngleInDegrees, float outerAngleInDegrees, float power, float quadraticFactor, float linearFactor, float constantFactor, glm::vec3 diffuseColor, glm::vec3 specularColor)
 	{
 		static const float PI = glm::pi<float>();
 
@@ -321,6 +314,7 @@ namespace OpenGL
 		sceneShader.loadUniform(sceneShader.uniformLocations.spotLight.constantFactor, constantFactor);
 		sceneShader.loadUniform(sceneShader.uniformLocations.spotLight.diffuseColor, diffuseColor.x, diffuseColor.y, diffuseColor.z);
 		sceneShader.loadUniform(sceneShader.uniformLocations.spotLight.specularColor, specularColor.x, specularColor.y, specularColor.z);
+		return spotLight;
 	}
 
 	glm::vec3 Scene::getAmbientLightColor()

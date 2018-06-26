@@ -124,6 +124,7 @@ namespace OpenGL
 			glUniform1f(SceneRenderingShader::uniformLocations.textureRepeatCount, 1);
 			glActiveTexture(GL_TEXTURE0 + Shader::samplerValues.colorSampler);
 			glBindTexture(GL_TEXTURE_2D, material->colorTexture->getHandle());
+			checkErrors();
 		}
 	}
 
@@ -173,6 +174,15 @@ namespace OpenGL
 	{
 		return new Model(name, createQuadVertices(), createQuadNormals(), createQuadTexCoords(repeats), createQuadIndices(), tex);
 	}
+	Model * Model::BaseModelGenerator::generateCube(std::string name, std::string texturePath, bool interiorNormals, float repeats)
+	{
+		return new Model(name, createCubeVertices(), createCubeNormals(interiorNormals), createCubeTexCoords(repeats), createCubeIndices(), texturePath);
+	}
+	Model * Model::BaseModelGenerator::generateCube(std::string name, Texture* tex, bool interiorNormals, float repeats)
+	{
+		return new Model(name, createCubeVertices(), createCubeNormals(interiorNormals), createCubeTexCoords(repeats), createCubeIndices(), tex);
+	}
+
 	std::vector<glm::vec3> Model::BaseModelGenerator::createQuadVertices()
 	{
 		std::vector<glm::vec3> varfuri;
@@ -205,6 +215,145 @@ namespace OpenGL
 		std::vector<unsigned> indici;
 		indici.push_back(0); indici.push_back(1); indici.push_back(2);
 		indici.push_back(0); indici.push_back(2); indici.push_back(3);
+		return indici;
+	}
+	std::vector<glm::vec3> Model::BaseModelGenerator::createCubeVertices()
+	{
+		std::vector<glm::vec3> varfuri;
+
+		// Front face
+		varfuri.push_back(glm::vec3(-1,	-1,	-1));
+		varfuri.push_back(glm::vec3(1,	-1,	-1));
+		varfuri.push_back(glm::vec3(1,	-1,	1));
+		varfuri.push_back(glm::vec3(-1,	-1,	1));
+
+		// Back face
+		varfuri.push_back(glm::vec3(1,	1,	-1));
+		varfuri.push_back(glm::vec3(-1,	1,	-1));
+		varfuri.push_back(glm::vec3(-1,	1,	1));
+		varfuri.push_back(glm::vec3(1,	1,	1));
+
+		// Left face
+		varfuri.push_back(glm::vec3(-1,	1,	-1));
+		varfuri.push_back(glm::vec3(-1,	-1,	-1));
+		varfuri.push_back(glm::vec3(-1,	-1,	1));
+		varfuri.push_back(glm::vec3(-1,	1,	1));
+
+		// Right face
+		varfuri.push_back(glm::vec3(1,	-1,	-1));
+		varfuri.push_back(glm::vec3(1,	1,	-1));
+		varfuri.push_back(glm::vec3(1,	1,	1));
+		varfuri.push_back(glm::vec3(1,	-1,	1));
+
+		// Up face
+		varfuri.push_back(glm::vec3(-1,	-1,	1));
+		varfuri.push_back(glm::vec3(1,	-1,	1));
+		varfuri.push_back(glm::vec3(1,	1,	1));
+		varfuri.push_back(glm::vec3(-1,	1,	1));
+
+		// Down face
+		varfuri.push_back(glm::vec3(-1,	1,	-1));
+		varfuri.push_back(glm::vec3(1,	1,	-1));
+		varfuri.push_back(glm::vec3(1,	-1,	-1));
+		varfuri.push_back(glm::vec3(-1,	-1,	-1));
+
+		return varfuri;
+	}
+	std::vector<glm::vec3> Model::BaseModelGenerator::createCubeNormals(bool interiorNormals)
+	{
+		std::vector<glm::vec3> normale;
+		int orientare = 1;
+		if (interiorNormals)
+			orientare = -1;
+
+		// Front face
+		normale.push_back(glm::vec3(0, -1 * orientare, 0));
+		normale.push_back(glm::vec3(0, -1 * orientare, 0));
+		normale.push_back(glm::vec3(0, -1 * orientare, 0));
+		normale.push_back(glm::vec3(0, -1 * orientare, 0));
+
+		// Back face
+		normale.push_back(glm::vec3(0, 1 * orientare, 0));
+		normale.push_back(glm::vec3(0, 1 * orientare, 0));
+		normale.push_back(glm::vec3(0, 1 * orientare, 0));
+		normale.push_back(glm::vec3(0, 1 * orientare, 0));
+
+		// Left face
+		normale.push_back(glm::vec3(-1 * orientare, 0, 0));
+		normale.push_back(glm::vec3(-1 * orientare, 0, 0));
+		normale.push_back(glm::vec3(-1 * orientare, 0, 0));
+		normale.push_back(glm::vec3(-1 * orientare, 0, 0));
+
+		// Right face
+		normale.push_back(glm::vec3(1 * orientare, 0, 0));
+		normale.push_back(glm::vec3(1 * orientare, 0, 0));
+		normale.push_back(glm::vec3(1 * orientare, 0, 0));
+		normale.push_back(glm::vec3(1 * orientare, 0, 0));
+
+		// Up face
+		normale.push_back(glm::vec3(0, 0, 1 * orientare));
+		normale.push_back(glm::vec3(0, 0, 1 * orientare));
+		normale.push_back(glm::vec3(0, 0, 1 * orientare));
+		normale.push_back(glm::vec3(0, 0, 1 * orientare));
+
+		// Down face
+		normale.push_back(glm::vec3(0, 0, -1 * orientare));
+		normale.push_back(glm::vec3(0, 0, -1 * orientare));
+		normale.push_back(glm::vec3(0, 0, -1 * orientare));
+		normale.push_back(glm::vec3(0, 0, -1 * orientare));
+
+		return normale;
+	}
+	std::vector<glm::vec2> Model::BaseModelGenerator::createCubeTexCoords(float repeats)
+	{
+		std::vector<glm::vec2> coordTexturare;
+
+		// Front face
+		coordTexturare.push_back(glm::vec2(0.0f, 0.0f));
+		coordTexturare.push_back(glm::vec2(repeats, 0.0f));
+		coordTexturare.push_back(glm::vec2(repeats, repeats));
+		coordTexturare.push_back(glm::vec2(0.0f, repeats));
+
+		// Back face
+		coordTexturare.push_back(glm::vec2(0.0f, 0.0f));
+		coordTexturare.push_back(glm::vec2(repeats, 0.0f));
+		coordTexturare.push_back(glm::vec2(repeats, repeats));
+		coordTexturare.push_back(glm::vec2(0.0f, repeats));
+
+		// Left face
+		coordTexturare.push_back(glm::vec2(0.0f, 0.0f));
+		coordTexturare.push_back(glm::vec2(repeats, 0.0f));
+		coordTexturare.push_back(glm::vec2(repeats, repeats));
+		coordTexturare.push_back(glm::vec2(0.0f, repeats));
+
+		// Right face
+		coordTexturare.push_back(glm::vec2(0.0f, 0.0f));
+		coordTexturare.push_back(glm::vec2(repeats, 0.0f));
+		coordTexturare.push_back(glm::vec2(repeats, repeats));
+		coordTexturare.push_back(glm::vec2(0.0f, repeats));
+
+		// Up face
+		coordTexturare.push_back(glm::vec2(0.0f, 0.0f));
+		coordTexturare.push_back(glm::vec2(repeats, 0.0f));
+		coordTexturare.push_back(glm::vec2(repeats, repeats));
+		coordTexturare.push_back(glm::vec2(0.0f, repeats));
+
+		// Down face
+		coordTexturare.push_back(glm::vec2(0.0f, 0.0f));
+		coordTexturare.push_back(glm::vec2(repeats, 0.0f));
+		coordTexturare.push_back(glm::vec2(repeats, repeats));
+		coordTexturare.push_back(glm::vec2(0.0f, repeats));
+
+		return coordTexturare;
+	}
+	std::vector<unsigned> Model::BaseModelGenerator::createCubeIndices()
+	{
+		std::vector<unsigned> indici;
+		for (int i = 0; i < 24; i += 4)
+		{
+			indici.push_back(i + 0); indici.push_back(i + 1); indici.push_back(i + 2);
+			indici.push_back(i + 0); indici.push_back(i + 2); indici.push_back(i + 3);
+		}
 		return indici;
 	}
 }

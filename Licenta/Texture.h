@@ -52,7 +52,7 @@ namespace OpenGL
 	public:
 		static void init();
 		static Texture* getDefaultTexture()		{ return defaultTexture; }
-		static Texture* loadTexture(const std::string filePath, GLenum minFilter = GL_NEAREST, GLenum magFilter = GL_NEAREST, int mipmapLevel = 0);
+		static Texture* loadTexture(const std::string filePath, GLenum minFilter = GL_LINEAR_MIPMAP_LINEAR, GLenum magFilter = GL_LINEAR, int mipmapLevel = 0);
 		static void unloadTexture(const std::string filePath);
 		static Texture* createShadowMap(int width, int height);
 		GLuint getHandle() const	{ return tex; }
@@ -74,6 +74,8 @@ namespace OpenGL
 			GLenum dataType;
 			GLenum minfilter;
 			GLenum magfilter;
+			GLint wrapS;
+			GLint wrapT;
 			bool isCubemap;
 
 		public:
@@ -84,9 +86,9 @@ namespace OpenGL
 			Builder& setMipmapLevel(int mipmapLevel);
 			Builder& setImageFormat(TextureType type);
 			Builder& setFilters(GLenum minfilter, GLenum magfilter);
+			Builder& setWrapMode(GLint wrapS, GLint wrapT);
 			Builder& setIsCubemap(bool isCubemap);
 			Texture* build();
-			void deleteTexture(Texture* texture);
 		};
 	};
 }

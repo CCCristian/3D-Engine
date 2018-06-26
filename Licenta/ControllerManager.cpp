@@ -22,12 +22,13 @@ void ControllerManager::init()
 	scena = new OpenGL::Scene();
 	OpenGL::activeScene = scena;
 	scena->getCamera()->translateBy(glm::vec3(0, -3, 3));
+	scena->getCamera()->setFarZ(1000);
 	scena->setSkybox(new OpenGL::Skybox("Resurse/Skyboxes/Skybox1/Right.tga", "Resurse/Skyboxes/Skybox1/Left.tga", "Resurse/Skyboxes/Skybox1/Front.tga", "Resurse/Skyboxes/Skybox1/Back.tga", "Resurse/Skyboxes/Skybox1/Up.tga", "Resurse/Skyboxes/Skybox1/Down.tga"));
 	
 	scena->setAmbientLight(glm::vec3(.6f, .8f, .8f), .15f);
-	scena->addDirectionalLight(-glm::vec3(0.850026, 0.10232, 0.516707), 1.2f, glm::vec3((float)243/256, (float)228 / 256, (float)194 / 256), glm::vec3(1, 1, 1));
+	scena->setDirectionalLight(-glm::vec3(0.850026, 0.10232, 0.516707), 1.2f, glm::vec3((float)243/256, (float)228 / 256, (float)194 / 256), glm::vec3(1, 1, 1))->setPosition(glm::vec3(10, 2, 10));
 	scena->addPointLight(glm::vec3(-0.5f, 0, 0), /*6.5f*/0, 1, 1, 1.f, glm::vec3(1, 1, 1), glm::vec3(1, 1, 1));
-	scena->addSpotLight(glm::vec3(2, 0, 2.7), glm::vec3(0, 0, -1), 15, 30, 11.8f, 0.2f, 0.4f, 1.f);
+	scena->addSpotLight(glm::vec3(-5, 0, 2.7), glm::vec3(0, 0, -1), 15, 30, 11.8f, 0.2f, 0.4f, 1.f);
 	//scena->setSpotLight(glm::vec3(0, 0, 1), glm::vec3(0, 0, -1), 15, 11.8f, 0.02f, 0.04f, 1.f);
 	//scena->addSpotLight(glm::vec3(2, 2, 3), glm::vec3(0, 0, -1), 15, 30, 1.8f, 0.2f, 0.4f, 1.f);
 
@@ -37,7 +38,7 @@ void ControllerManager::init()
 	const OpenGL::Model *tree = OpenGL::Model::createModel("tree", "Resurse/Modele/Tree/Tree poplar N151117.obj");
 	//const OpenGL::Model *tree = OpenGL::Model::createModel("tree", "Resurse/Modele/MapleTree/MapleTree.obj");
 	//const OpenGL::Model *tree = OpenGL::Model::createModel("tree", "Resurse/Modele/FirTree/fir.obj");
-	//const OpenGL::Model *quad = OpenGL::Model::BaseModelGenerator::generateQuad("quad", "Resurse/Texturi/Grass.bmp", 100);
+	//const OpenGL::Model *quad = OpenGL::Model::BaseModelGenerator::generateQuad("quad", "Resurse/Texturi/Grass.bmp", 1000);
 
 	OpenGL::Object *house = scena->addObject(new OpenGL::Object(casa1));
 	house->setPosition(glm::vec3(-7, 3, 1.8));
@@ -49,24 +50,21 @@ void ControllerManager::init()
 	house->setRotation(glm::vec3(glm::pi<float>() / 2, 0.0f, 0.0f));
 	house->setScale(glm::vec3(0.1f, 0.1f, 0.1f));
 
-	scena->addWaterBody(1.5, 50, -50, 50, -50);
 	OpenGL::Object *terenOb = &scena->addObject(new OpenGL::Object(teren))->setPosition(0, 0, 0).setScale(50, 50, 1);
+	scena->addWaterBody(1.5, 1000, -1000, 1000, -1000);
+	//scena->addObject(new OpenGL::Object(quad))->setScale(glm::vec3(1000, 1000, 1)).setPosition(glm::vec3(0, 0, -0.1));
+
 
 	const float step = 3.5f;
 	const float scale = 0.0015f;
 	for (float i = -10; i <= 10; i += 2 * step)
 		for (float j = -10; j <= 10; j += 2 * step)
 		{
-			scena->addObject(new OpenGL::Object(tree))->setPosition(glm::vec3(i + distr(random) * 3, j + distr(random) * 3, 0) + glm::vec3(8, -5, 1.6)).setScale(glm::vec3(scale, scale, scale)).setRotation(glm::vec3(glm::pi<float>() / 2, 0, 0));
+			scena->addObject(new OpenGL::Object(tree))->setPosition(glm::vec3(i + distr(random) * 3, j + distr(random) * 3, 0) + glm::vec3(6, -8, 1)).setScale(glm::vec3(scale, scale, scale)).setRotation(glm::vec3(glm::pi<float>() / 2, 0, 0));
 		}
 
-	//OpenGL::Object *ob;
-	//ob = scena->addObject(new OpenGL::Object(quad));
-	//ob->setPosition(glm::vec3(0, 0, -0.1));
-	//ob->setScale(glm::vec3(50, 50, 50));
 
-
-
+	lumina = &scena->addObject(new OpenGL::Object(OpenGL::Model::BaseModelGenerator::generateCube("cub", OpenGL::Texture::getDefaultTexture())))->setScale(.2f);
 
 	//const OpenGL::Model *weed = OpenGL::Model::createModel("weed", "Resurse/Modele/Weed3/grass-block.obj");
 	//const float step = 0.05f;
@@ -104,7 +102,12 @@ void ControllerManager::update()
 		scena->setAmbientLightIntensity(scena->getAmbientLightIntensity() + viteza/3);
 	static float x = -0.5f;
 	static glm::vec2 posCasa(2, 3);
-	static glm::vec3 pos = (*(OpenGL::activeScene->getSpotLights().begin()))->getPosition();
+	static glm::vec3 pos = []
+	{
+		glm::vec3 poss = (*(OpenGL::activeScene->getSpotLights().begin()))->getPosition();
+		lumina->setPosition(poss);
+		return poss;
+	}();
 	if (Input.keyPressed['p'])
 	{
 		if (copac != nullptr)
@@ -119,25 +122,25 @@ void ControllerManager::update()
 	if (Input.keyPressed['a'])
 	{
 		pos.x -= viteza;
-		//lumina->setPosition(glm::vec3(x, 0, 0));
+		lumina->setPosition(pos);
 		scena->setSpotLightPosition(pos);
 	}
 	if (Input.keyPressed['d'])
 	{
 		pos.x += viteza;
-		//lumina->setPosition(glm::vec3(x, 0, 0));
+		lumina->setPosition(pos);
 		scena->setSpotLightPosition(pos);
 	}
 	if (Input.keyPressed['w'])
 	{
 		pos.y += viteza;
-		//lumina->setPosition(glm::vec3(x, 0, 0));
+		lumina->setPosition(pos);
 		scena->setSpotLightPosition(pos);
 	}
 	if (Input.keyPressed['s'])
 	{
 		pos.y -= viteza;
-		//lumina->setPosition(glm::vec3(x, 0, 0));
+		lumina->setPosition(pos);
 		scena->setSpotLightPosition(pos);
 	}
 	if (Input.keyPressed['j'])
@@ -167,13 +170,13 @@ void ControllerManager::update()
 	if (Input.keyPressed['r'])
 	{
 		pos.z += viteza;
-		//lumina->setPosition(glm::vec3(x, 0, 0));
+		lumina->setPosition(pos);
 		scena->setSpotLightPosition(pos);
 	}
 	if (Input.keyPressed['f'])
 	{
 		pos.z -= viteza;
-		//lumina->setPosition(glm::vec3(x, 0, 0));
+		lumina->setPosition(pos);
 		scena->setSpotLightPosition(pos);
 	}
 }

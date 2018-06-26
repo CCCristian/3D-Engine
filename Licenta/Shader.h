@@ -177,6 +177,7 @@ namespace OpenGL
 		struct UniformLocations
 		{
 			GLint world;
+			GLint tiles;
 			GLint transform;
 			GLint movement;
 			GLint cameraPosition;

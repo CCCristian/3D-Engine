@@ -25,13 +25,6 @@ namespace OpenGL
 		if (imageFormat == GL_DEPTH_COMPONENT)
 		{
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-		}
-		else
-		{
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		}
 		glPixelStorei(GL_PACK_ALIGNMENT, 1);
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -90,7 +83,11 @@ namespace OpenGL
 	}
 	Texture* Texture::createShadowMap(int width, int height)
 	{
-		return Builder().setDimensions(width, height).setImageFormat(TextureType::ShadowMap).build();
+		constexpr float borders[4] = { 1.f, 1.f ,1.f ,1.f };
+
+		Texture* map = Builder().setDimensions(width, height).setImageFormat(TextureType::ShadowMap).setFilters(GL_LINEAR, GL_LINEAR).setWrapMode(GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER).build();
+		glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borders);
+		return map;
 	}
 	void Texture::init()
 	{
@@ -149,6 +146,8 @@ namespace OpenGL
 		dataType = GL_UNSIGNED_BYTE;
 		minfilter = GL_NEAREST;
 		magfilter = GL_NEAREST;
+		wrapS = GL_REPEAT;
+		wrapT = GL_REPEAT;
 		isCubemap = false;
 	}
 	Texture::Builder& Texture::Builder::setFilePath(std::string filePath)
@@ -182,7 +181,7 @@ namespace OpenGL
 			dataType = GL_UNSIGNED_BYTE;
 			break;
 		case OpenGL::Texture::ShadowMap:
-			pixelFormat = GL_DEPTH_COMPONENT;
+			pixelFormat = GL_DEPTH_COMPONENT16;
 			imageFormat = GL_DEPTH_COMPONENT;
 			dataType = GL_FLOAT;
 			break;
@@ -209,6 +208,12 @@ namespace OpenGL
 		Builder::magfilter = magfilter;
 		return *this;
 	}
+	Texture::Builder& Texture::Builder::setWrapMode(GLint wrapS, GLint wrapT)
+	{
+		Builder::wrapS = wrapS;
+		Builder::wrapT = wrapT;
+		return *this;
+	}
 	Texture::Builder& Texture::Builder::setIsCubemap(bool isCubemap)
 	{
 		Builder::isCubemap = isCubemap;
@@ -220,10 +225,9 @@ namespace OpenGL
 		glBindTexture(GL_TEXTURE_2D, tex->tex);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minfilter);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magfilter);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapS);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT);
+		checkErrors();
 		return tex;
-	}
-	void OpenGL::Texture::Builder::deleteTexture(Texture* texture)
-	{
-		delete texture;
 	}
 }

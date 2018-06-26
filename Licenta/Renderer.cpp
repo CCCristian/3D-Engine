@@ -21,7 +21,7 @@ namespace OpenGL
 		{
 #ifndef USE_INSTANCED_RENDERING
 			const Model::MeshObject& meshObj = *model->getMeshObjects()[i];
-			glBindVertexArray(meshObj.mesh->vao);
+			glBindVertexArray(meshObj.mesh->getHandle());
 			model->prepareShader(i, activeShader);
 			glm::mat4 transform = *object.getTransform() * meshObj.transform;
 			GLuint location = SceneRenderingShader::uniformLocations.transform;
@@ -33,7 +33,7 @@ namespace OpenGL
 #else
 			const Model::MeshObject& meshObj = *model->getMeshObjects()[i];
 			model->prepareShader(i, activeShader);
-			glBindVertexArray(meshObj.mesh->vao);
+			glBindVertexArray(meshObj.mesh->getHandle());
 			glBindBuffer(GL_ARRAY_BUFFER, singleMatrixVBO);
 			glm::mat4 transform = *object.getTransform() * meshObj.transform;
 			glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(glm::mat4), &transform);
@@ -58,6 +58,7 @@ namespace OpenGL
 		glBindTexture(GL_TEXTURE_2D, Water::getDUDVMap()->getHandle());
 		glActiveTexture(GL_TEXTURE0 + Shader::samplerValues.normalSampler);
 		glBindTexture(GL_TEXTURE_2D, Water::getNormalMap()->getHandle());
+		glUniform2f(WaterShader::uniformLocations.tiles, water.getTiles().x, water.getTiles().y);
 
 
 #ifndef USE_INSTANCED_RENDERING
@@ -87,7 +88,7 @@ namespace OpenGL
 			const std::vector<glm::mat4>& vec = data.getMeshInstancesVector()[i];
 			if (!drawForShadowMap)
 				model->prepareShader(i, activeShader);
-			glBindVertexArray(meshObj.mesh->vao);
+			glBindVertexArray(meshObj.mesh->getHandle());
 			GLuint location = SceneRenderingShader::uniformLocations.transform;
 			if (activeShader == Shader::ShaderType::WaterShader)
 				location = WaterShader::uniformLocations.transform;
@@ -112,7 +113,7 @@ namespace OpenGL
 			const Model::MeshObject& meshObj = *model->getMeshObjects()[i];
 			if (!drawForShadowMap)
 				model->prepareShader(i, activeShader);
-			glBindVertexArray(meshObj.mesh->vao);
+			glBindVertexArray(meshObj.mesh->getHandle());
 			glBindBuffer(GL_ARRAY_BUFFER, data.getVBOHandles()[i]);
 			glVertexAttribPointer(5, 4, GL_FLOAT, false, 4 * sizeof(glm::vec4), 0);
 			glVertexAttribPointer(6, 4, GL_FLOAT, false, 4 * sizeof(glm::vec4), (const GLvoid *)sizeof(glm::vec4));
@@ -131,7 +132,7 @@ namespace OpenGL
 		glDrawElements(GL_TRIANGLES, skybox->indici.size(), GL_UNSIGNED_INT, 0);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 	}
-	void Renderer::useShader(const Shader& shader)
+	void Renderer::useShaderProgram(const Shader& shader)
 	{
 		glUseProgram(shader.getHandle());
 		activeShader = shader.shaderType;

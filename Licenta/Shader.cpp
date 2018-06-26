@@ -273,6 +273,7 @@ namespace OpenGL
 	void WaterShader::loadUniformLocations()
 	{
 		uniformLocations.world				= glGetUniformLocation(program, "world");
+		uniformLocations.tiles				= glGetUniformLocation(program, "tiles");
 		uniformLocations.transform			= glGetUniformLocation(program, "transform");
 		uniformLocations.movement			= glGetUniformLocation(program, "movement");
 		uniformLocations.cameraPosition		= glGetUniformLocation(program, "cameraPosition");

@@ -8,13 +8,12 @@ namespace OpenGL
 {
 	class Water: public Object
 	{
-		//float northBorder;
-		//float southBorder;
-		//float eastBorder;
-		//float westBorder;
+		static constexpr float unitsPerTile = 10;
+
 		static Texture* dudvMap;
 		static Texture* normalMap;
 		float height;
+		glm::vec2 tiles;
 		Framebuffer reflectionFramebuffer;
 		Framebuffer refractionFramebuffer;
 		
@@ -24,7 +23,8 @@ namespace OpenGL
 		static const Texture* getNormalMap()	{ return normalMap; }
 
 		Water(float height, float northBorder, float southBorder, float eastBorder, float westBorder);
-		float getHeight() const;
+		float getHeight() const					{ return height; }
+		const glm::vec2& getTiles() const		{ return tiles; }
 		const Framebuffer& getReflectionFramebuffer() const	{ return reflectionFramebuffer; }
 		const Framebuffer& getRefractionFramebuffer() const	{ return refractionFramebuffer; }
 	};

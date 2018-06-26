@@ -31,9 +31,42 @@ namespace OpenGL
 			break;
 		}
 
-		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		GLenum error = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+		if (error != GL_FRAMEBUFFER_COMPLETE)
 		{
-			std::cerr << "Eroare: framebuffer incomplet.\n";
+			constexpr const char* error_GL_FRAMEBUFFER_UNDEFINED						= "GL_FRAMEBUFFER_UNDEFINED";
+			constexpr const char* error_GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT			= "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT";
+			constexpr const char* error_GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT	= "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT";
+			constexpr const char* error_GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER			= "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER";
+			constexpr const char* error_GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER			= "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER";
+			constexpr const char* error_GL_FRAMEBUFFER_UNSUPPORTED						= "GL_FRAMEBUFFER_UNSUPPORTED";
+			constexpr const char* error_GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE			= "GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE";
+			constexpr const char* error_GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS			= "GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS";
+
+			const char* mesaj;
+			switch (error)
+			{
+			case GL_FRAMEBUFFER_UNDEFINED:
+				mesaj = error_GL_FRAMEBUFFER_UNDEFINED;						break;
+			case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+				mesaj = error_GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT;			break;
+			case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+				mesaj = error_GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT;	break;
+			case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
+				mesaj = error_GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER;		break;
+			case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
+				mesaj = error_GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER;		break;
+			case GL_FRAMEBUFFER_UNSUPPORTED:
+				mesaj = error_GL_FRAMEBUFFER_UNSUPPORTED;					break;
+			case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
+				mesaj = error_GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE;		break;
+			case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:
+				mesaj = error_GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS;		break;
+			default:
+				mesaj = "Alta eroare";
+				break;
+			}
+			std::cerr << "Eroare: framebuffer incomplet - " << mesaj << ".\n";
 			std::cin.get();
 			exit(1);
 		}

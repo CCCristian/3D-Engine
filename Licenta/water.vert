@@ -3,6 +3,7 @@
 layout (location = 0) in vec3 inPosition;
 layout (location = 3) in vec2 inTexCoords;
 uniform mat4 world;
+uniform vec2 tiles;
 #ifdef USE_INSTANCED_RENDERING
 layout (location = 5) in mat4 instanceTransform;
 #else
@@ -12,7 +13,6 @@ out vec4 clipPosition;
 out vec3 worldPosition;
 out vec2 texCoords;
 
-const float tiles = 7;
 
 void main()
 {

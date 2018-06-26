@@ -55,10 +55,10 @@ uniform sampler2D colorSampler;
 uniform sampler2D colorSampler2;
 uniform sampler2D colorSampler3;
 uniform sampler2D blendSampler;
-//uniform sampler2D specularSampler;
-//uniform sampler2D normalSampler;
-//uniform sampler2D lightSampler;
-//uniform sampler2D heightSampler;
+uniform sampler2D specularSampler;
+uniform sampler2D normalSampler;
+uniform sampler2D lightSampler;
+uniform sampler2D heightSampler;
 uniform sampler2DShadow shadowSampler;
 
 in vec3 fragPosition;
@@ -148,15 +148,21 @@ void main()
 	else if (textureCount == 2)
 		gl_FragColor = mix(texture(colorSampler, fragTex), texture(colorSampler2, fragTex), texture(blendSampler, fragTex));
 	else if (textureCount == 3)
-		gl_FragColor = texture(colorSampler, fragTex);
+	{
+		vec3 blend = texture(blendSampler, fragTex).xyz;
+		vec4 color1 = texture(colorSampler, fragTex) * blend.x;
+		vec4 color2 = texture(colorSampler2, fragTex) * blend.y;
+		vec4 color3 = texture(colorSampler3, fragTex) * blend.z;
+		gl_FragColor = color1 + color2 + color3;
+	}
 	
 
 	// Precalculations
 	vec3 normal = normalize(fragNormal);
 	vec3 fragmentToEye = normalize(cameraPosition - fragPosition);
-//	vec3 shadowMapCoods = ((fragLightSpacePosition.xyz / fragLightSpacePosition.w) + 1) / 2;
-	vec3 shadowMapCoods = vec3(((fragLightSpacePosition.xy / fragLightSpacePosition.w) + 1) / 2, fragLightSpacePosition.z + 0.01);
-//	shadowMapCoods.z = gl_FragDepth - 0.01;
+	vec3 shadowMapCoods = fragLightSpacePosition.xyz/fragLightSpacePosition.w * 0.5 + 0.5;
+	float bias = max(0.01 * (1 - dot(normal, directionalLight.direction)), 0.002);
+	shadowMapCoods.z -= 0.006;
 
 	vec3 ambientComponent = calcAmbientLight(gl_FragColor);
 	vec3 directionalComponent = calcDirectionalLight(gl_FragColor, normal, fragmentToEye);
@@ -164,16 +170,7 @@ void main()
 	vec3 spotLightComponent = calcSpotLight(gl_FragColor, normal, fragmentToEye);
 
 	float specShadow = texture(shadowSampler, shadowMapCoods);
-	gl_FragColor = vec4(ambientComponent + directionalComponent + pointLightComponent + spotLightComponent*specShadow, 1);
+	gl_FragColor = vec4(ambientComponent + specShadow * directionalComponent + pointLightComponent + spotLightComponent, 1);
 
-//	float val = 0;
-//	if (texture(shadowSampler, vec3((gl_FragCoord.xy + 1) / 2, 0.000000)) == 1)
-//		val = 1;
-//	val = texture(shadowSampler, (gl_FragCoord.xy + 1) / 2).r;
-//	val = texture(shadowSampler, gl_FragCoord.xy).r;
-//	if (val >= 1.000000) val = 0;
-//	val = 1 - 1 / (1 - val);
-//	gl_FragColor = vec4(val, val, val, 1);
-//	gl_FragColor = vec4(vec3(texture(shadowSampler, (gl_FragCoord.xy + 1) / 2).r), 1.0);
-//
+
 }

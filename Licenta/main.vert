@@ -21,9 +21,11 @@ uniform vec4 clipPlane;
 void main()
 {
 	gl_Position = world * transform * vec4(inPosition, 1.0);
-	fragLightSpacePosition = lightSpaceMatrix * transform * vec4(inPosition, 1.0);
 	fragPosition = vec3(transform * vec4(inPosition, 1.0));
 	fragNormal = vec3(transpose(inverse(transform)) * vec4(inNormal, 0.0));
-	gl_ClipDistance[0] = dot(transform * vec4(inPosition, 1.0), clipPlane);
 	fragTex = vec2(inTex.x, 1 - inTex.y) * textureRepeatCount;
+
+	fragLightSpacePosition = lightSpaceMatrix * transform * vec4(inPosition, 1.0);
+
+	gl_ClipDistance[0] = dot(transform * vec4(inPosition, 1.0), clipPlane);
 }

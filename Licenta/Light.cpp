@@ -17,11 +17,25 @@ namespace OpenGL
 		DirectionalLight::diffuseIntensity = diffuseIntensity;
 		DirectionalLight::diffuseColor = diffuseColor;
 		DirectionalLight::specularColor = specularColor;
+		computeShadowMatrix();
+	}
+	void DirectionalLight::computeShadowMatrix()
+	{
+		constexpr float border = 40.f;
+
+		shadowViewMatrix = glm::lookAt(position, position + direction, glm::vec3(0, 0, 1));
+		shadowProjectionMatrix = glm::scale(glm::mat4(1), glm::vec3(1, 1, 0.05)) * glm::ortho(-border, border, -border, border);
+		shadowMapMatrix = shadowProjectionMatrix * shadowViewMatrix;
 	}
 	void DirectionalLight::setDirection(glm::vec3 direction)
 	{
 		DirectionalLight::direction = direction;
-		shadowMapMatrix = glm::ortho(-100.f, 100.f, -100.f, 100.f) * glm::lookAt(glm::vec3(0), glm::vec3(0) + direction, glm::vec3(0, 0, 1));
+		computeShadowMatrix();
+	}
+	void DirectionalLight::setPosition(glm::vec3 position)
+	{
+		DirectionalLight::position = position;
+		computeShadowMatrix();
 	}
 
 
@@ -54,11 +68,17 @@ namespace OpenGL
 		SpotLight::diffuseColor = diffuseColor;
 		SpotLight::specularColor = specularColor;
 
-		shadowMapMatrix = glm::perspective(2*outerAngle, (float)currentWindowWidth / currentWindowHeight, 0.01f, 100.f) * glm::lookAt(position, position + direction, glm::vec3(0,1,0));
+		computeShadowMatrix();
+	}
+	void SpotLight::computeShadowMatrix()
+	{
+		shadowViewMatrix = glm::lookAt(position, position + direction, glm::vec3(0, 1, 0));
+		shadowProjectionMatrix = glm::perspective(2 * outerAngle, (float)currentWindowWidth / currentWindowHeight, 0.01f, 100.f);
+		shadowMapMatrix = shadowProjectionMatrix * shadowViewMatrix;
 	}
 	void SpotLight::setPosition(glm::vec3 position)
 	{
 		SpotLight::position = position;
-		shadowMapMatrix = glm::perspective(2*outerAngle, (float)currentWindowWidth / currentWindowHeight, 0.01f, 100.f) * glm::lookAt(position, position + direction, glm::vec3(0, 1, 0));
+		computeShadowMatrix();
 	}
 }

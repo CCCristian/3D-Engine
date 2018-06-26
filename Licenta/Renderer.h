@@ -19,6 +19,6 @@ namespace OpenGL
 		void draw(const Water& water);
 		void draw(const ModelInstanceData &data, bool drawForShadowMap = false);
 		void draw(Skybox* skybox, glm::mat4& world);
-		void useShader(const Shader& shader);
+		void useShaderProgram(const Shader& shader);
 	};
 }
