@@ -21,8 +21,8 @@ void ControllerManager::init()
 
 	scena = new OpenGL::Scene();
 	OpenGL::activeScene = scena;
-	scena->getCamera()->translateBy(glm::vec3(0, -3, 3));
-	scena->getCamera()->setFarZ(1000);
+	scena->getCamera()->translateBy(glm::vec3(0, -3, 15));
+	scena->getCamera()->setFarZ(100000);
 	scena->setSkybox(new OpenGL::Skybox("Resurse/Skyboxes/Skybox1/Right.tga", "Resurse/Skyboxes/Skybox1/Left.tga", "Resurse/Skyboxes/Skybox1/Front.tga", "Resurse/Skyboxes/Skybox1/Back.tga", "Resurse/Skyboxes/Skybox1/Up.tga", "Resurse/Skyboxes/Skybox1/Down.tga"));
 	
 	scena->setAmbientLight(glm::vec3(.6f, .8f, .8f), .15f);
@@ -32,39 +32,43 @@ void ControllerManager::init()
 	//scena->setSpotLight(glm::vec3(0, 0, 1), glm::vec3(0, 0, -1), 15, 11.8f, 0.02f, 0.04f, 1.f);
 	//scena->addSpotLight(glm::vec3(2, 2, 3), glm::vec3(0, 0, -1), 15, 30, 1.8f, 0.2f, 0.4f, 1.f);
 
-	const OpenGL::Model *teren = OpenGL::Terrain::Builder().addTexture("Resurse/Texturi/Grass.bmp").setTextureRepeatCount(50).setMaxHeight(2).setHeightMapFile("Resurse/Terenuri/DoubleBasin_big.png").build();
-	const OpenGL::Model *casa1 = OpenGL::Model::createModel("casa1", "Resurse/Modele/247_House 15_obj/247_House 15_obj.obj");
-	const OpenGL::Model *casa2 = OpenGL::Model::createModel("casa2", "Resurse/Modele/Farmhouse Maya 2016 Updated/farmhouse_obj.obj");
+	const OpenGL::Model *quad = OpenGL::Model::BaseModelGenerator::generateQuad("quad", "Resurse/Texturi/Ground.png", 1000);
+	//const OpenGL::Model *teren = OpenGL::Terrain::Builder().addTexture("Resurse/Texturi/Grass.bmp").setTextureRepeatCount(50).setMaxHeight(2).setHeightMapFile("Resurse/Terenuri/DoubleBasin_big.png").build();
+	const OpenGL::Model *teren = OpenGL::Terrain::Builder().addTexture("Resurse/Texturi/Ground.png").setTextureRepeatCount(50).setMaxHeight(30).setHeightMapFile("Resurse/Terenuri/Coast.png").build();
+	//const OpenGL::Model *casa1 = OpenGL::Model::createModel("casa1", "Resurse/Modele/247_House 15_obj/247_House 15_obj.obj");
+	//const OpenGL::Model *casa2 = OpenGL::Model::createModel("casa2", "Resurse/Modele/Farmhouse Maya 2016 Updated/farmhouse_obj.obj");
 	const OpenGL::Model *tree = OpenGL::Model::createModel("tree", "Resurse/Modele/Tree/Tree poplar N151117.obj");
 	//const OpenGL::Model *tree = OpenGL::Model::createModel("tree", "Resurse/Modele/MapleTree/MapleTree.obj");
 	//const OpenGL::Model *tree = OpenGL::Model::createModel("tree", "Resurse/Modele/FirTree/fir.obj");
-	//const OpenGL::Model *quad = OpenGL::Model::BaseModelGenerator::generateQuad("quad", "Resurse/Texturi/Grass.bmp", 1000);
+	const OpenGL::Model *dock = OpenGL::Model::createModel("dock", "Resurse/Modele/Dock/Dock.obj");
 
-	OpenGL::Object *house = scena->addObject(new OpenGL::Object(casa1));
-	house->setPosition(glm::vec3(-7, 3, 1.8));
-	house->setRotation(glm::vec3(glm::pi<float>()/2, 0.0f, 0.0f));
-	house->setScale(glm::vec3(0.01f, 0.01f, 0.01f));
+	//OpenGL::Object *house = scena->addObject(new OpenGL::Object(casa1));
+	//house->setPosition(glm::vec3(-7, 3, 1.8));
+	//house->setRotation(glm::vec3(glm::pi<float>()/2, 0.0f, 0.0f));
+	//house->setScale(glm::vec3(0.01f, 0.01f, 0.01f));
 
-	house = scena->addObject(new OpenGL::Object(casa2));
-	house->setPosition(glm::vec3(-2, 3, 1.5));
-	house->setRotation(glm::vec3(glm::pi<float>() / 2, 0.0f, 0.0f));
-	house->setScale(glm::vec3(0.1f, 0.1f, 0.1f));
+	//house = scena->addObject(new OpenGL::Object(casa2));
+	//house->setPosition(glm::vec3(-2, 3, 1.5));
+	//house->setRotation(glm::vec3(glm::pi<float>() / 2, 0.0f, 0.0f));
+	//house->setScale(glm::vec3(0.1f, 0.1f, 0.1f));
 
-	OpenGL::Object *terenOb = &scena->addObject(new OpenGL::Object(teren))->setPosition(0, 0, 0).setScale(50, 50, 1);
-	scena->addWaterBody(1.5, 1000, -1000, 1000, -1000);
+	OpenGL::Object *terenOb = &scena->addObject(new OpenGL::Object(teren))->setPosition(0, 20, -15).setScale(150, 150, 1);
+	scena->addWaterBody(8.5, 1000, -1000, 1000, -1000);
+	scena->addObject(new OpenGL::Object(dock))->setPosition(glm::vec3(0, 0, 9)).setScale(1);
 	//scena->addObject(new OpenGL::Object(quad))->setScale(glm::vec3(1000, 1000, 1)).setPosition(glm::vec3(0, 0, -0.1));
 
 
-	const float step = 3.5f;
+	const float step = 4.5f;
 	const float scale = 0.0015f;
+	glm::vec3 center(6, 30, 9);
 	for (float i = -10; i <= 10; i += 2 * step)
 		for (float j = -10; j <= 10; j += 2 * step)
 		{
-			scena->addObject(new OpenGL::Object(tree))->setPosition(glm::vec3(i + distr(random) * 3, j + distr(random) * 3, 0) + glm::vec3(6, -8, 1)).setScale(glm::vec3(scale, scale, scale)).setRotation(glm::vec3(glm::pi<float>() / 2, 0, 0));
+			scena->addObject(new OpenGL::Object(tree))->setPosition(glm::vec3(i + distr(random) * 3, j + distr(random) * 3, 0) + center).setScale(glm::vec3(scale, scale, scale)).setRotation(glm::vec3(glm::pi<float>() / 2, 0, 0));
 		}
 
 
-	lumina = &scena->addObject(new OpenGL::Object(OpenGL::Model::BaseModelGenerator::generateCube("cub", OpenGL::Texture::getDefaultTexture())))->setScale(.2f);
+	//lumina = &scena->addObject(new OpenGL::Object(OpenGL::Model::BaseModelGenerator::generateCube("cub", OpenGL::Texture::getDefaultTexture())))->setScale(.2f);
 
 	//const OpenGL::Model *weed = OpenGL::Model::createModel("weed", "Resurse/Modele/Weed3/grass-block.obj");
 	//const float step = 0.05f;
@@ -102,83 +106,83 @@ void ControllerManager::update()
 		scena->setAmbientLightIntensity(scena->getAmbientLightIntensity() + viteza/3);
 	static float x = -0.5f;
 	static glm::vec2 posCasa(2, 3);
-	static glm::vec3 pos = []
-	{
-		glm::vec3 poss = (*(OpenGL::activeScene->getSpotLights().begin()))->getPosition();
-		lumina->setPosition(poss);
-		return poss;
-	}();
-	if (Input.keyPressed['p'])
-	{
-		if (copac != nullptr)
-		{
-			OpenGL::activeScene->removeObject(copac);
-			delete copac;
-			copac = nullptr;
-		}
-		copac = nullptr;
-	}
+	//static glm::vec3 pos = []
+	//{
+	//	glm::vec3 poss = (*(OpenGL::activeScene->getSpotLights().begin()))->getPosition();
+	//	lumina->setPosition(poss);
+	//	return poss;
+	//}();
+	//if (Input.keyPressed['p'])
+	//{
+	//	if (copac != nullptr)
+	//	{
+	//		OpenGL::activeScene->removeObject(copac);
+	//		delete copac;
+	//		copac = nullptr;
+	//	}
+	//	copac = nullptr;
+	//}
 
-	if (Input.keyPressed['a'])
-	{
-		pos.x -= viteza;
-		lumina->setPosition(pos);
-		scena->setSpotLightPosition(pos);
-	}
-	if (Input.keyPressed['d'])
-	{
-		pos.x += viteza;
-		lumina->setPosition(pos);
-		scena->setSpotLightPosition(pos);
-	}
-	if (Input.keyPressed['w'])
-	{
-		pos.y += viteza;
-		lumina->setPosition(pos);
-		scena->setSpotLightPosition(pos);
-	}
-	if (Input.keyPressed['s'])
-	{
-		pos.y -= viteza;
-		lumina->setPosition(pos);
-		scena->setSpotLightPosition(pos);
-	}
-	if (Input.keyPressed['j'])
-	{
-		posCasa.x -= viteza;
-		if (copac != nullptr)
-			copac->setPosition(glm::vec3(posCasa, 0));
-	}
-	if (Input.keyPressed['l'])
-	{
-		posCasa.x += viteza;
-		if (copac != nullptr)
-			copac->setPosition(glm::vec3(posCasa, 0));
-	}
-	if (Input.keyPressed['k'])
-	{
-		posCasa.y -= viteza;
-		if (copac != nullptr)
-			copac->setPosition(glm::vec3(posCasa, 0));
-	}
-	if (Input.keyPressed['i'])
-	{
-		posCasa.y += viteza;
-		if (copac != nullptr)
-			copac->setPosition(glm::vec3(posCasa, 0));
-	}
-	if (Input.keyPressed['r'])
-	{
-		pos.z += viteza;
-		lumina->setPosition(pos);
-		scena->setSpotLightPosition(pos);
-	}
-	if (Input.keyPressed['f'])
-	{
-		pos.z -= viteza;
-		lumina->setPosition(pos);
-		scena->setSpotLightPosition(pos);
-	}
+	//if (Input.keyPressed['a'])
+	//{
+	//	pos.x -= viteza;
+	//	lumina->setPosition(pos);
+	//	scena->setSpotLightPosition(pos);
+	//}
+	//if (Input.keyPressed['d'])
+	//{
+	//	pos.x += viteza;
+	//	lumina->setPosition(pos);
+	//	scena->setSpotLightPosition(pos);
+	//}
+	//if (Input.keyPressed['w'])
+	//{
+	//	pos.y += viteza;
+	//	lumina->setPosition(pos);
+	//	scena->setSpotLightPosition(pos);
+	//}
+	//if (Input.keyPressed['s'])
+	//{
+	//	pos.y -= viteza;
+	//	lumina->setPosition(pos);
+	//	scena->setSpotLightPosition(pos);
+	//}
+	//if (Input.keyPressed['j'])
+	//{
+	//	posCasa.x -= viteza;
+	//	if (copac != nullptr)
+	//		copac->setPosition(glm::vec3(posCasa, 0));
+	//}
+	//if (Input.keyPressed['l'])
+	//{
+	//	posCasa.x += viteza;
+	//	if (copac != nullptr)
+	//		copac->setPosition(glm::vec3(posCasa, 0));
+	//}
+	//if (Input.keyPressed['k'])
+	//{
+	//	posCasa.y -= viteza;
+	//	if (copac != nullptr)
+	//		copac->setPosition(glm::vec3(posCasa, 0));
+	//}
+	//if (Input.keyPressed['i'])
+	//{
+	//	posCasa.y += viteza;
+	//	if (copac != nullptr)
+	//		copac->setPosition(glm::vec3(posCasa, 0));
+	//}
+	//if (Input.keyPressed['r'])
+	//{
+	//	pos.z += viteza;
+	//	lumina->setPosition(pos);
+	//	scena->setSpotLightPosition(pos);
+	//}
+	//if (Input.keyPressed['f'])
+	//{
+	//	pos.z -= viteza;
+	//	lumina->setPosition(pos);
+	//	scena->setSpotLightPosition(pos);
+	//}
 }
 
 void keyboardButtonPress(unsigned char c, int x, int y)

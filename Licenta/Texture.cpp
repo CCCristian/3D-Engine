@@ -49,7 +49,7 @@ namespace OpenGL
 	Texture* Texture::loadTexture(std::string filePath, GLenum minFilter, GLenum magFilter, int mipmapLevel)
 	{
 		if (filePath == "" || filePath[filePath.length() - 1] == '/' || filePath[filePath.length() - 1] == '\\')
-			return defaultTexture;
+			return nullptr;
 		auto it = texturi.find(filePath);
 		if (it == texturi.end())
 		{

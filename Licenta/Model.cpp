@@ -34,6 +34,8 @@ namespace OpenGL
 			aiString path;
 			scene->mMaterials[i]->GetTexture(aiTextureType_DIFFUSE, 0, &path);
 			Material *mat = new Material(Texture::loadTexture(directory + path.C_Str(), GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR));
+			scene->mMaterials[i]->GetTexture(aiTextureType_HEIGHT, 0, &path);
+			mat->normalTexture = Texture::loadTexture(directory + path.C_Str(), GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
 			aiColor3D col;
 			for (unsigned j = 0; j < scene->mMaterials[i]->mNumProperties; j++)
 			{
