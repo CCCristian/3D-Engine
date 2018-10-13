@@ -7,21 +7,27 @@
 
 namespace OpenGL
 {
-	class Light
+	struct AmbientLight
 	{
-	protected:
+		glm::vec3 color;
+		float intensity;
+	};
+
+
+	struct Light
+	{
 		Framebuffer shadowMap;
 		glm::mat4 shadowMapMatrix;
 		glm::mat4 shadowViewMatrix;
 		glm::mat4 shadowProjectionMatrix;
-	public:
+
 		Light(bool isPointLight);
 		virtual ~Light() {}
 		Framebuffer* getShadowFramebuffer()		{ return &shadowMap; }
 	};
 
 
-	class DirectionalLight: public Light
+	struct DirectionalLight: Light
 	{
 		glm::vec3 direction;
 		float diffuseIntensity;
@@ -29,7 +35,7 @@ namespace OpenGL
 		glm::vec3 specularColor;
 
 		glm::vec3 position;		// For shadow mapping
-	public:
+
 		DirectionalLight(glm::vec3 direction, float diffuseIntensity, glm::vec3 diffuseColor, glm::vec3 specularColor);
 		~DirectionalLight() {}
 		void computeShadowMatrix();
@@ -42,7 +48,7 @@ namespace OpenGL
 		void setDirection(glm::vec3 direction);
 		void setPosition(glm::vec3 position);
 	};
-	class PointLight: public Light
+	struct PointLight: Light
 	{
 		glm::vec3 position;
 		float power;
@@ -51,12 +57,12 @@ namespace OpenGL
 		float constantFactor;
 		glm::vec3 diffuseColor;
 		glm::vec3 specularColor;
-	public:
+
 		PointLight(glm::vec3 position, float power, float quadraticFactor, float linearFactor, float constantFactor, glm::vec3 diffuseColor, glm::vec3 specularColor);
 		~PointLight() {}
 		glm::vec3 getPosition() const			{ return position; };
 	};
-	class SpotLight: public Light
+	struct SpotLight: Light
 	{
 		glm::vec3 position;
 		glm::vec3 direction;
@@ -70,7 +76,7 @@ namespace OpenGL
 		float constantFactor;
 		glm::vec3 diffuseColor;
 		glm::vec3 specularColor;
-	public:
+
 		SpotLight(glm::vec3 position, glm::vec3 direction, float innerAngleInDegrees, float outerAngleInDegrees, float power, float quadraticFactor, float linearFactor, float constantFactor, glm::vec3 diffuseColor, glm::vec3 specularColor);
 		~SpotLight() {}
 		void computeShadowMatrix();
@@ -79,5 +85,13 @@ namespace OpenGL
 		glm::mat4* getShadowMapMatrix()			{ return &shadowMapMatrix; }
 		glm::mat4* getShadowViewMatrix()		{ return &shadowViewMatrix; }
 		glm::mat4* getShadowProjectionMatrix()	{ return &shadowProjectionMatrix; }
+	};
+
+	struct Lights
+	{
+		AmbientLight ambientLight;
+		DirectionalLight* directionalLight;
+		std::set<PointLight *> pointLights;
+		std::set<SpotLight *> spotLights;
 	};
 }

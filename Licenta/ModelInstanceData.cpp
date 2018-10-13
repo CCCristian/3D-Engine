@@ -37,7 +37,6 @@ namespace OpenGL
 	}
 	void ModelInstanceData::addInstance(Object *object)
 	{
-		// TODO: update vbos to GPU
 		const std::vector<Model::MeshObject *>& meshObjects = model->getMeshObjects();
 		for (int i = 0, end = model->getMeshObjectsCount(); i < end; i++)
 		{
@@ -52,7 +51,6 @@ namespace OpenGL
 	}
 	void ModelInstanceData::removeInstance(Object *object)
 	{
-		// TODO: update vbos to GPU
 		const std::vector<Model::MeshObject *>& meshObjects = object->getModel()->getMeshObjects();
 		auto it = instanceIndices.find(object);
 		if (it == instanceIndices.end())
@@ -73,20 +71,4 @@ namespace OpenGL
 		areVBOsUpdated = false;
 #endif
 	}
-#ifdef USE_INSTANCED_RENDERING
-	void ModelInstanceData::updateVBOsToGPU() const
-	{
-		if (areVBOsUpdated)
-			return;
-		areVBOsUpdated = true;
-
-		const std::vector<Model::MeshObject *>& meshObjects = model->getMeshObjects();
-		for (int i = 0, end = model->getMeshObjectsCount(); i < end; i++)
-		{
-			glBindBuffer(GL_ARRAY_BUFFER, vbos[i]);
-			glBufferData(GL_ARRAY_BUFFER, instanceVAOVectors[i].size() * sizeof(glm::mat4), 0, GL_DYNAMIC_DRAW);
-			glBufferSubData(GL_ARRAY_BUFFER, 0, instanceVAOVectors[i].size() * sizeof(glm::mat4), &instanceVAOVectors[i][0]);
-		}
-	}
-#endif
 }

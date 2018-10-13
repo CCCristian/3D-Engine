@@ -47,7 +47,7 @@ namespace OpenGL
 		Model(const Model&) = delete;
 		virtual ~Model();
 		/** Upload all necessary non-instance uniforms to the shader, bind the VAO, bind the appropriate textures, etc. */
-		virtual void prepareShader(int meshObjectIndex, Shader::ShaderType shaderType) const;
+		virtual void prepareShader(int meshObjectIndex, const Shader& shader) const;
 		int getMeshCount() const									{ return meshes.size(); }
 		const std::vector<Mesh *>& getMeshes() const				{ return meshes; }
 		int getMeshObjectsCount() const								{ return meshObjects.size(); }

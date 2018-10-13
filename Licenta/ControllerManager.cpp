@@ -58,7 +58,7 @@ void ControllerManager::init()
 	//scena->addObject(new OpenGL::Object(quad))->setScale(glm::vec3(1000, 1000, 1)).setPosition(glm::vec3(0, 0, -0.1));
 
 
-	const float step = 4.5f;
+	const float step = 7;
 	const float scale = 0.0015f;
 	glm::vec3 center(6, 30, 9);
 	for (float i = -10; i <= 10; i += 2 * step)

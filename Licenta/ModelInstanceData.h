@@ -25,10 +25,6 @@ namespace OpenGL
 		std::vector<const Object *> instancePointerVectors;
 		/** The index of the given object in the instance vectors. */
 		std::map<const Object *, int> instanceIndices;
-#ifdef USE_INSTANCED_RENDERING
-		/** This is to orphan VBOs only when needed, on render, instead of on each instances vector change. */
-		mutable bool areVBOsUpdated;
-#endif
 
 		static void updateTransform(ModelInstanceData* modelInstanceData, Object *object);
 	public:
@@ -36,12 +32,13 @@ namespace OpenGL
 		~ModelInstanceData();
 		void addInstance(Object *obj);
 		void removeInstance(Object *obj);
-#ifdef USE_INSTANCED_RENDERING
-		void updateVBOsToGPU() const;
-#endif
 		const Model* getModel() const	{ return model; }
 		const std::vector<std::vector<glm::mat4>>& getMeshInstancesVector() const		{ return instanceVAOVectors; }
 		int getInstanceCount() const	{ return instancePointerVectors.size(); }
 		GLuint* getVBOHandles() const	{ return vbos; }
+#ifdef USE_INSTANCED_RENDERING
+		/** This is to orphan VBOs only when needed, on render, instead of on each instances vector change. */
+		mutable bool areVBOsUpdated;
+#endif
 	};
 }

@@ -142,6 +142,13 @@ namespace OpenGL
 		checkErrors();
 		return *this;
 	}
+
+	const Shader& Shader::loadUniform(GLint location, bool boolean) const
+	{
+		glUniform1i(location, boolean);
+		checkErrors();
+		return *this;
+	}
 	
 	// ------------------------------------------------------------------------------
 	// ------------------------------------------------------------------------------
@@ -196,6 +203,7 @@ namespace OpenGL
 
 
 		uniformLocations.textureCount		= glGetUniformLocation(program, "textureCount");
+		uniformLocations.hasNormalMap		= glGetUniformLocation(program, "hasNormalMap");
 		uniformLocations.textureRepeatCount = glGetUniformLocation(program, "textureRepeatCount");
 
 		uniformLocations.colorSampler		= glGetUniformLocation(program, "colorSampler");

@@ -68,7 +68,7 @@ namespace OpenGL
 		for (int i = 0; i < width * height; i++)
 				glm::normalize(normals[i]);
 
-		materials.push_back(new Material(texture1, texture2, texture3));
+		materials.push_back(Material::Builder(texture1).setColorTexture2(texture2).setColorTexture3(texture3).build());
 		meshes.push_back(new Mesh(*vaos, positions, normals, textureCoordinates, indices, materials[0]));
 		meshObjects.push_back(new MeshObject(glm::mat4(1), meshes[0]));
 		stbi_image_free(image);
@@ -84,23 +84,25 @@ namespace OpenGL
 		if (shaderType == Shader::ShaderType::MainShader)
 		{
 			Material* material = meshObjects[meshObjectIndex]->mesh->getMaterial();
-			glUniform3f(SceneRenderingShader::uniformLocations.materialDiffuseColor, material->diffuseColor.x, material->diffuseColor.y, material->diffuseColor.z);
-			glUniform3f(SceneRenderingShader::uniformLocations.materialSpecularColor, material->specularColor.x, material->specularColor.y, material->specularColor.z);
-			glUniform1f(SceneRenderingShader::uniformLocations.materialSpecularIntensity, material->specularIntensity);
-			glUniform1f(SceneRenderingShader::uniformLocations.materialSpecularPower, material->specularPower);
+			glm::vec3 color = material->getDiffuseColor();
+			glUniform3f(SceneRenderingShader::uniformLocations.materialDiffuseColor, color.x, color.y, color.z);
+			color = material->getSpecularColor();
+			glUniform3f(SceneRenderingShader::uniformLocations.materialSpecularColor, color.x, color.y, color.z);
+			glUniform1f(SceneRenderingShader::uniformLocations.materialSpecularIntensity, material->getSpecularIntensity());
+			glUniform1f(SceneRenderingShader::uniformLocations.materialSpecularPower, material->getSpecularPower());
 			glUniform1i(SceneRenderingShader::uniformLocations.textureCount, textureCount);
 			glUniform1f(SceneRenderingShader::uniformLocations.textureRepeatCount, textureRepeatCount);
 			glActiveTexture(GL_TEXTURE0 + Shader::samplerValues.colorSampler);
-			glBindTexture(GL_TEXTURE_2D, material->colorTexture->getHandle());
+			glBindTexture(GL_TEXTURE_2D, material->getColorTexture()->getHandle());
 			if (textureCount >= 2)
 			{
 				glActiveTexture(GL_TEXTURE0 + Shader::samplerValues.colorSampler2);
-				glBindTexture(GL_TEXTURE_2D, material->colorTexture2->getHandle());
+				glBindTexture(GL_TEXTURE_2D, material->getColorTexture2()->getHandle());
 			}
 			if (textureCount >= 3)
 			{
 				glActiveTexture(GL_TEXTURE0 + Shader::samplerValues.colorSampler3);
-				glBindTexture(GL_TEXTURE_2D, material->colorTexture3->getHandle());
+				glBindTexture(GL_TEXTURE_2D, material->getColorTexture3()->getHandle());
 			}
 		}
 		checkErrors();
@@ -169,10 +171,10 @@ namespace OpenGL
 			texture1 = Texture::getDefaultTexture();
 			addedTexturesCount = 1;
 		}
-		Material *material = new Material(texture1);
-		material->colorTexture2 = texture2;
-		material->colorTexture3 = texture3;
-		Terrain* terrain = new Terrain(name, heightMapFile, texture1, texture2, texture3, maxHeight, material);
+		Material::Builder builder(texture1);
+		builder.setColorTexture2(texture2);
+		builder.setColorTexture3(texture3);
+		Terrain* terrain = new Terrain(name, heightMapFile, texture1, texture2, texture3, maxHeight, builder.build());
 		terrain->textureCount = addedTexturesCount;
 		terrain->textureRepeatCount = textureRepeatCount;
 		return terrain;

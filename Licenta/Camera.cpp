@@ -2,8 +2,6 @@
 
 namespace OpenGL
 {
-	SceneRenderingShader *Camera::sceneShader;
-	ShadowMapShader *Camera::shadowMapShader;
 	const glm::vec3 Camera::up(0.f, 0.f, 1.f);
 
 	Camera::Camera()

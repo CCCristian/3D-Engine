@@ -31,7 +31,7 @@ void main()
 	vec4 reflection = texture(reflectionSampler, reflectionCoords);
 	vec4 refraction = texture(refractionSampler, refractionCoords);
 
-	float refractiveIndex = clamp(dot(vec3(0, 0, 1), normalize(cameraPosition - worldPosition)), 0.1, 0.9);
+	float refractiveIndex = clamp(dot(vec3(0, 0, 1), normalize(cameraPosition - worldPosition)), 0.6, 0.9);
 	gl_FragColor = blueTint + vec4(vec3(0.6), 1) * mix(reflection, refraction, pow(refractiveIndex, 2));
 	
 	vec4 normalColor = texture(normalSampler, distortionCoords);

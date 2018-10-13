@@ -15,11 +15,12 @@ namespace OpenGL
 	class Mesh
 	{
 		struct Vertex;
+		struct VertexAttributeIndices;
+
+		static const VertexAttributeIndices vertexAttributeIndices;
 
 		GLuint vao, vbo, ibo;
 		int indexCount;
-		//std::vector<Vertex> varfuri;
-		//std::vector<unsigned> indici;
 		Material *material;
 	public:
 		Mesh(const GLuint vao, const aiMesh* meshData, Material *material);
@@ -37,12 +38,27 @@ namespace OpenGL
 			glm::vec3 position;
 			glm::vec3 normal;
 			glm::vec2 textureCoordinates;
-			Vertex(glm::vec3 position, glm::vec3 normal, glm::vec2 textureCoordinates)
+			glm::vec3 tangent;
+			Vertex(glm::vec3 position, glm::vec3 normal, glm::vec2 textureCoordinates, glm::vec3 tangent = glm::vec3(0))
 			{
 				Vertex::position = position;
 				Vertex::normal = normal;
 				Vertex::textureCoordinates = textureCoordinates;
+				Vertex::tangent = tangent;
 			}
+		};
+		struct VertexAttributeIndices
+		{
+			const int position = 0;
+			const int color = 1;
+			const int normal = 2;
+			const int textureCoordinates = 3;
+			const int tangent = 4;
+
+			const int instanceColumn1 = 5;
+			const int instanceColumn2 = 6;
+			const int instanceColumn3 = 7;
+			const int instanceColumn4 = 8;
 		};
 	};
 }

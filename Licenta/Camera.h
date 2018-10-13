@@ -5,7 +5,6 @@
 #include "glm.hpp"
 #include "glm\gtc\matrix_transform.hpp"
 #include "glm\gtc\constants.hpp"
-#include "Shader.h"
 
 namespace OpenGL
 {
@@ -31,8 +30,6 @@ namespace OpenGL
 		Camera& calcAndSetVectors();
 
 	public:
-		static SceneRenderingShader *sceneShader;
-		static ShadowMapShader *shadowMapShader;
 		Camera();
 		Camera(float aspectRatio, float verticalFOV, float nearZ, float drawDistance);
 		glm::vec3 getPosition() const;

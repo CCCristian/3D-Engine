@@ -10,43 +10,43 @@ namespace OpenGL
 		glBindBuffer(GL_ARRAY_BUFFER, singleMatrixVBO);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4), 0, GL_DYNAMIC_DRAW);
 	}
+
 	Renderer::~Renderer()
 	{
 		glDeleteBuffers(1, &singleMatrixVBO);
 	}
-	void Renderer::draw(const Object& object)
+
+	void Renderer::draw(const Shader& shader, const Object& object)
 	{
 		const Model* model = object.getModel();
 		for (int i = 0; i < model->getMeshObjectsCount(); i++)
 		{
-#ifndef USE_INSTANCED_RENDERING
 			const Model::MeshObject& meshObj = *model->getMeshObjects()[i];
 			glBindVertexArray(meshObj.mesh->getHandle());
-			model->prepareShader(i, activeShader);
+			model->prepareShader(i, shader);
 			glm::mat4 transform = *object.getTransform() * meshObj.transform;
+
+#ifndef USE_INSTANCED_RENDERING
 			GLuint location = SceneRenderingShader::uniformLocations.transform;
-			if (activeShader == Shader::ShaderType::WaterShader)
+			if (shader.shaderType == Shader::ShaderType::WaterShader)
 				location = WaterShader::uniformLocations.transform;
 			glUniformMatrix4fv(location, 1, GL_FALSE, (const GLfloat *)&transform);
 			glDrawElements(GL_TRIANGLES, meshObj.mesh->getIndexCount(), GL_UNSIGNED_INT, 0);
-			checkErrors();
 #else
-			const Model::MeshObject& meshObj = *model->getMeshObjects()[i];
-			model->prepareShader(i, activeShader);
-			glBindVertexArray(meshObj.mesh->getHandle());
 			glBindBuffer(GL_ARRAY_BUFFER, singleMatrixVBO);
-			glm::mat4 transform = *object.getTransform() * meshObj.transform;
 			glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(glm::mat4), &transform);
 			glVertexAttribPointer(5, 4, GL_FLOAT, false, 0, 0);
 			glVertexAttribPointer(6, 4, GL_FLOAT, false, 0, (const GLvoid *)sizeof(glm::vec4));
 			glVertexAttribPointer(7, 4, GL_FLOAT, false, 0, (const GLvoid *)(2 * sizeof(glm::vec4)));
 			glVertexAttribPointer(8, 4, GL_FLOAT, false, 0, (const GLvoid *)(3 * sizeof(glm::vec4)));
 			glDrawElementsInstanced(GL_TRIANGLES, meshObj.mesh->getIndexCount(), GL_UNSIGNED_INT, 0, 1);
-			checkErrors();
 #endif
+
+			checkErrors();
 		}
 	}
-	void Renderer::draw(const Water& water)
+
+	void Renderer::draw(const Shader& shader, const Water& water)
 	{
 		static GLuint quadVAO = Model::getQuadModel()->getMeshes()[0]->getHandle();
 
@@ -78,21 +78,25 @@ namespace OpenGL
 		checkErrors();
 #endif
 	}
-	void Renderer::draw(const ModelInstanceData& data, bool drawForShadowMap)
+
+	void Renderer::draw(const Shader& shader, const ModelInstanceData& data)
 	{
-#ifndef USE_INSTANCED_RENDERING
 		const Model* model = data.getModel();
+#ifdef USE_INSTANCED_RENDERING
+		updateVBOsToGPU(data);
+#endif
 		for (int i = 0; i < model->getMeshObjectsCount(); i++)
 		{
 			const Model::MeshObject& meshObj = *model->getMeshObjects()[i];
-			const std::vector<glm::mat4>& vec = data.getMeshInstancesVector()[i];
-			if (!drawForShadowMap)
-				model->prepareShader(i, activeShader);
+			model->prepareShader(i, shader);
 			glBindVertexArray(meshObj.mesh->getHandle());
+			const std::vector<glm::mat4>& vec = data.getMeshInstancesVector()[i];
+
+#ifndef USE_INSTANCED_RENDERING
 			GLuint location = SceneRenderingShader::uniformLocations.transform;
-			if (activeShader == Shader::ShaderType::WaterShader)
+			if (shader.shaderType == Shader::ShaderType::WaterShader)
 				location = WaterShader::uniformLocations.transform;
-			if (activeShader == Shader::ShaderType::ShadowMapShader)
+			if (shader.shaderType == Shader::ShaderType::ShadowMapShader)
 				location = ShadowMapShader::uniformLocations.transform;
 			for (int j = 0; j < data.getInstanceCount(); j++)
 			{
@@ -104,26 +108,18 @@ namespace OpenGL
 				glUniformMatrix4fv(location, 1, GL_FALSE, (const GLfloat *)&vec[j]);
 				glDrawElements(GL_TRIANGLES, meshObj.mesh->getIndexCount(), GL_UNSIGNED_INT, 0);
 			}
-		}
 #else
-		const Model* model = data.getModel();
-		data.updateVBOsToGPU();
-		for (int i = 0; i < model->getMeshObjectsCount(); i++)
-		{
-			const Model::MeshObject& meshObj = *model->getMeshObjects()[i];
-			if (!drawForShadowMap)
-				model->prepareShader(i, activeShader);
-			glBindVertexArray(meshObj.mesh->getHandle());
 			glBindBuffer(GL_ARRAY_BUFFER, data.getVBOHandles()[i]);
 			glVertexAttribPointer(5, 4, GL_FLOAT, false, 4 * sizeof(glm::vec4), 0);
 			glVertexAttribPointer(6, 4, GL_FLOAT, false, 4 * sizeof(glm::vec4), (const GLvoid *)sizeof(glm::vec4));
 			glVertexAttribPointer(7, 4, GL_FLOAT, false, 4 * sizeof(glm::vec4), (const GLvoid *)(2 * sizeof(glm::vec4)));
 			glVertexAttribPointer(8, 4, GL_FLOAT, false, 4 * sizeof(glm::vec4), (const GLvoid *)(3 * sizeof(glm::vec4)));
 			glDrawElementsInstanced(GL_TRIANGLES, meshObj.mesh->getIndexCount(), GL_UNSIGNED_INT, 0, data.getMeshInstancesVector()[i].size());
-		}
 #endif
+		}
 	}
-	void Renderer::draw(Skybox* skybox, glm::mat4& world)
+
+	void Renderer::draw(const Shader& shader, const Skybox* skybox, const glm::mat4& world)
 	{
 		glBindVertexArray(skybox->vao);
 		glActiveTexture(GL_TEXTURE0 + Shader::samplerValues.skyboxSampler);
@@ -132,9 +128,21 @@ namespace OpenGL
 		glDrawElements(GL_TRIANGLES, skybox->indici.size(), GL_UNSIGNED_INT, 0);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 	}
-	void Renderer::useShaderProgram(const Shader& shader)
+
+#ifdef USE_INSTANCED_RENDERING
+	void Renderer::updateVBOsToGPU(const ModelInstanceData& data) const
 	{
-		glUseProgram(shader.getHandle());
-		activeShader = shader.shaderType;
+		if (data.areVBOsUpdated)
+			return;
+		data.areVBOsUpdated = true;
+
+		const std::vector<Model::MeshObject *>& meshObjects = data.getModel()->getMeshObjects();
+		for (int i = 0, end = data.getModel()->getMeshObjectsCount(); i < end; i++)
+		{
+			glBindBuffer(GL_ARRAY_BUFFER, data.getVBOHandles()[i]);
+			glBufferData(GL_ARRAY_BUFFER, data.getMeshInstancesVector()[i].size() * sizeof(glm::mat4), 0, GL_DYNAMIC_DRAW);
+			glBufferSubData(GL_ARRAY_BUFFER, 0, data.getMeshInstancesVector()[i].size() * sizeof(glm::mat4), &data.getMeshInstancesVector()[i][0]);
+		}
 	}
+#endif
 }

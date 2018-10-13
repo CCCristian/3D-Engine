@@ -38,6 +38,7 @@ namespace OpenGL
 		const Shader& loadUniform(GLint location, const glm::mat4& matrix) const;
 		const Shader& loadUniform(GLint location, int integer) const;
 		const Shader& loadUniform(GLint location, float number) const;
+		const Shader& loadUniform(GLint location, bool boolean) const;
 
 
 	private:
@@ -120,6 +121,7 @@ namespace OpenGL
 			SpotLight spotLight;
 
 			GLint textureCount;
+			GLint hasNormalMap;
 			GLint textureRepeatCount;
 			GLint colorSampler;
 			GLint colorSampler2;

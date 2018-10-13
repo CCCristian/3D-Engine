@@ -31,38 +31,39 @@ namespace OpenGL
 		// Incarcare materiale
 		for (unsigned i = 0; i < scene->mNumMaterials; i++)
 		{
-			aiString path;
-			scene->mMaterials[i]->GetTexture(aiTextureType_DIFFUSE, 0, &path);
-			Material *mat = new Material(Texture::loadTexture(directory + path.C_Str(), GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR));
-			scene->mMaterials[i]->GetTexture(aiTextureType_HEIGHT, 0, &path);
-			mat->normalTexture = Texture::loadTexture(directory + path.C_Str(), GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+			aiString colorPath, normalPath;
+			scene->mMaterials[i]->GetTexture(aiTextureType_DIFFUSE, 0, &colorPath);
+			scene->mMaterials[i]->GetTexture(aiTextureType_HEIGHT, 0, &normalPath);
+			Material::Builder builder(Texture::loadTexture(directory + colorPath.C_Str(), GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR));
+			builder.setNormalTexture(Texture::loadTexture(directory + normalPath.C_Str(), GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR));
 			aiColor3D col;
 			for (unsigned j = 0; j < scene->mMaterials[i]->mNumProperties; j++)
 			{
-				if (scene->mMaterials[i]->mProperties[j]->mKey.C_Str() == Material::MaterialKeys.diffuseColor)
+				if (Material::MaterialKeys.diffuseColor == scene->mMaterials[i]->mProperties[j]->mKey.C_Str())
 				{
 					scene->mMaterials[i]->Get(AI_MATKEY_COLOR_DIFFUSE, col);
 					if (col.r != 0.0 || col.g != 0.0 || col.b != 0.0)
-						mat->diffuseColor = glm::vec3(col.r, col.g, col.b);
+						builder.setDiffuseColor(glm::vec3(col.r, col.g, col.b));
 				}
-				else if (scene->mMaterials[i]->mProperties[j]->mKey.C_Str() == Material::MaterialKeys.specularColor)
+				else if (Material::MaterialKeys.specularColor == scene->mMaterials[i]->mProperties[j]->mKey.C_Str())
 				{
 					scene->mMaterials[i]->Get(AI_MATKEY_COLOR_SPECULAR, col);
-					mat->specularColor = glm::vec3(col.r, col.g, col.b);
+					builder.setSpecularColor(glm::vec3(col.r, col.g, col.b));
 				}
-				else if (scene->mMaterials[i]->mProperties[j]->mKey.C_Str() == Material::MaterialKeys.specularIntensity)
+				else if (Material::MaterialKeys.specularIntensity == scene->mMaterials[i]->mProperties[j]->mKey.C_Str())
 				{
-					scene->mMaterials[i]->Get(AI_MATKEY_SHININESS_STRENGTH, mat->specularIntensity);
+					float strength;
+					scene->mMaterials[i]->Get(AI_MATKEY_SHININESS_STRENGTH, strength);
+					builder.setSpecularIntensity(strength);
 				}
-				else if (scene->mMaterials[i]->mProperties[j]->mKey.C_Str() == Material::MaterialKeys.specularPower)
+				else if (Material::MaterialKeys.specularPower == scene->mMaterials[i]->mProperties[j]->mKey.C_Str())
 				{
 					float parameter;
 					scene->mMaterials[i]->Get(AI_MATKEY_SHININESS, parameter);
-					if (parameter >= 2)
-						mat->specularPower = parameter;
+					builder.setSpecularPower(parameter);
 				}
 			}
-			materials.push_back(mat);
+			materials.push_back(builder.build());
 		}
 
 		// Incarcare meshes
@@ -87,7 +88,7 @@ namespace OpenGL
 		Model::name = name;
 		vaos = new GLuint;
 		glGenVertexArrays(1, vaos);
-		materials.push_back(new Material(Texture::loadTexture(texturePath)));
+		materials.push_back(Material::Builder(Texture::loadTexture(texturePath)).build());
 		meshes.push_back(new Mesh(*vaos, positions, normals, texCoords, indices, materials[0]));
 		meshObjects.push_back(new MeshObject(glm::mat4(1), meshes[0]));
 	}
@@ -96,7 +97,7 @@ namespace OpenGL
 		Model::name = name;
 		vaos = new GLuint;
 		glGenVertexArrays(1, vaos);
-		materials.push_back(new Material(tex));
+		materials.push_back(Material::Builder(tex).build());
 		meshes.push_back(new Mesh(*vaos, positions, normals, texCoords, indices, materials[0]));
 		meshObjects.push_back(new MeshObject(glm::mat4(1), meshes[0]));
 	}
@@ -113,19 +114,29 @@ namespace OpenGL
 		delete[] vaos;
 	}
 
-	void Model::prepareShader(int meshObjectIndex, Shader::ShaderType shaderType) const
+	void Model::prepareShader(int meshObjectIndex, const Shader& shader) const
 	{
-		if (shaderType == Shader::ShaderType::MainShader)
+		if (shader.shaderType == Shader::ShaderType::MainShader)
 		{
 			Material* material = meshObjects[meshObjectIndex]->mesh->getMaterial();
-			glUniform3f(SceneRenderingShader::uniformLocations.materialDiffuseColor, material->diffuseColor.x, material->diffuseColor.y, material->diffuseColor.z);
-			glUniform3f(SceneRenderingShader::uniformLocations.materialSpecularColor, material->specularColor.x, material->specularColor.y, material->specularColor.z);
-			glUniform1f(SceneRenderingShader::uniformLocations.materialSpecularIntensity, material->specularIntensity);
-			glUniform1f(SceneRenderingShader::uniformLocations.materialSpecularPower, material->specularPower);
+			glm::vec3 color = material->getDiffuseColor();
+			glUniform3f(SceneRenderingShader::uniformLocations.materialDiffuseColor, color.x, color.y, color.z);
+			color = material->getSpecularColor();
+			glUniform3f(SceneRenderingShader::uniformLocations.materialSpecularColor, color.x, color.y, color.z);
+			glUniform1f(SceneRenderingShader::uniformLocations.materialSpecularIntensity, material->getSpecularIntensity());
+			glUniform1f(SceneRenderingShader::uniformLocations.materialSpecularPower, material->getSpecularPower());
 			glUniform1i(SceneRenderingShader::uniformLocations.textureCount, 1);
 			glUniform1f(SceneRenderingShader::uniformLocations.textureRepeatCount, 1);
 			glActiveTexture(GL_TEXTURE0 + Shader::samplerValues.colorSampler);
-			glBindTexture(GL_TEXTURE_2D, material->colorTexture->getHandle());
+			glBindTexture(GL_TEXTURE_2D, material->getColorTexture()->getHandle());
+			if (material->hasNormalMap())
+			{
+				shader.loadUniform(SceneRenderingShader::uniformLocations.hasNormalMap, true);
+				glActiveTexture(GL_TEXTURE0 + Shader::samplerValues.normalSampler);
+				glBindTexture(GL_TEXTURE_2D, material->getNormalTexture()->getHandle());
+			}
+			else
+				shader.loadUniform(SceneRenderingShader::uniformLocations.hasNormalMap, false);
 			checkErrors();
 		}
 	}

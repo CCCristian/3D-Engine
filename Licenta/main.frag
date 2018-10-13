@@ -51,6 +51,7 @@ uniform PointLight pointLight;
 uniform SpotLight spotLight;
 
 uniform int textureCount;
+uniform bool hasNormalMap;
 uniform sampler2D colorSampler;
 uniform sampler2D colorSampler2;
 uniform sampler2D colorSampler3;
@@ -65,6 +66,7 @@ in vec3 fragPosition;
 in vec4 fragLightSpacePosition;
 in vec3 fragNormal;
 in vec2 fragTex;
+in vec3 fragTangent;
 layout(location = 0) out vec4 gl_FragColor;
 
 
@@ -156,9 +158,18 @@ void main()
 		gl_FragColor = color1 + color2 + color3;
 	}
 	
-
 	// Precalculations
 	vec3 normal = normalize(fragNormal);
+	if (hasNormalMap)
+	{
+		vec3 pointTangent = fragTangent;
+		vec3 pointNormal = normalize(fragNormal);
+		vec3 pointBitangent = normalize(cross(fragNormal, fragTangent));
+		pointTangent = normalize(cross(pointBitangent, pointNormal));
+		vec3 mapNormal = texture(normalSampler, fragTex).xyz;
+		mapNormal = 2*mapNormal - 1;
+		normal = normalize(mat3(pointTangent, pointBitangent, pointNormal) * mapNormal);
+	}
 	vec3 fragmentToEye = normalize(cameraPosition - fragPosition);
 	vec3 shadowMapCoods = fragLightSpacePosition.xyz/fragLightSpacePosition.w * 0.5 + 0.5;
 	float bias = max(0.01 * (1 - dot(normal, directionalLight.direction)), 0.002);
@@ -171,6 +182,4 @@ void main()
 
 	float specShadow = texture(shadowSampler, shadowMapCoods);
 	gl_FragColor = vec4(ambientComponent + specShadow * directionalComponent + pointLightComponent + spotLightComponent, 1);
-
-
 }
