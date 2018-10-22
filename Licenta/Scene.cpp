@@ -7,7 +7,7 @@ namespace OpenGL
 {
 	std::set<Scene *> Scene::scenes;
 
-	Scene::Scene(): camera(new Camera(16.f / 9.f, glm::pi<float>() / 3, 0.01f, 100.f)), drawer(*camera, lights), skybox(nullptr)
+	Scene::Scene(): camera(new Camera(16.f / 9.f, glm::pi<float>() / 3, 0.1f, 100.f)), drawer(*camera, lights), skybox(nullptr)
 	{
 		scenes.insert(this);
 	}
