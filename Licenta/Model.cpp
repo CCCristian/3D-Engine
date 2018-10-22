@@ -4,6 +4,8 @@
 #include "glm\gtc\matrix_transform.hpp"
 #include "Error.h"
 
+extern bool useNormalMapping;
+
 namespace OpenGL
 {
 	Model* Model::quadModel = nullptr;
@@ -131,12 +133,12 @@ namespace OpenGL
 			glBindTexture(GL_TEXTURE_2D, material->getColorTexture()->getHandle());
 			if (material->hasNormalMap())
 			{
-				shader.loadUniform(SceneRenderingShader::uniformLocations.hasNormalMap, true);
+				shader.loadUniform(SceneRenderingShader::uniformLocations.hasNormalMap, useNormalMapping && true);
 				glActiveTexture(GL_TEXTURE0 + Shader::samplerValues.normalSampler);
 				glBindTexture(GL_TEXTURE_2D, material->getNormalTexture()->getHandle());
 			}
 			else
-				shader.loadUniform(SceneRenderingShader::uniformLocations.hasNormalMap, false);
+				shader.loadUniform(SceneRenderingShader::uniformLocations.hasNormalMap, useNormalMapping && false);
 			checkErrors();
 		}
 	}

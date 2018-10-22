@@ -13,6 +13,7 @@ OpenGL::Scene* scena;
 OpenGL::Object* lumina;
 OpenGL::Object* flashlight;
 OpenGL::Object* copac;
+bool useNormalMapping = true;
 
 void ControllerManager::init()
 {
@@ -104,6 +105,8 @@ void ControllerManager::update()
 		scena->setAmbientLightIntensity(scena->getAmbientLightIntensity() - viteza/3);
 	if (Input.keyPressed['e'])
 		scena->setAmbientLightIntensity(scena->getAmbientLightIntensity() + viteza/3);
+
+
 	static float x = -0.5f;
 	static glm::vec2 posCasa(2, 3);
 	//static glm::vec3 pos = []
@@ -199,6 +202,11 @@ void keyboardButtonPress(unsigned char c, int x, int y)
 		std::cout << "Camera look vector: (" << look.x << ", " << look.y << ", " << look.z << ").\n";
 	}
 	Input.keyPressed[c] = true;
+
+
+	//Switch normal mapping
+	if (Input.keyPressed['n'])
+		useNormalMapping = !useNormalMapping;
 }
 
 void keyboardButtonRelease(unsigned char c, int x, int y)
