@@ -1,7 +1,6 @@
 #pragma once
 
-#include "GL/glew.h"
-#include "GL\freeglut.h"
+#include "GL.h"
 //#include "SOIL.h"
 #include "stb_image.h"
 #include <string>

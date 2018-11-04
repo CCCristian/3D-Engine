@@ -1,5 +1,5 @@
 #include "Scene.h"
-#include "Error.h"
+#include "Debug.h"
 #include "glm/gtc/matrix_transform.hpp"
 #include <cmath>
 

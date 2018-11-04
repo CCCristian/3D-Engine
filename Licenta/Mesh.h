@@ -1,7 +1,6 @@
 #pragma once
 
-#include "GL\glew.h"
-#include "GL\freeglut.h"
+#include "GL.h"
 #include "glm.hpp"
 #include "Assimp\include\assimp\Importer.hpp"
 #include "Assimp\include\assimp\scene.h"

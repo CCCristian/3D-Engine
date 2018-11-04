@@ -1,8 +1,7 @@
 #pragma once
 
 // Clasa in care e implementata logica programului
-#include "GL\glew.h"
-#include "GL\freeglut.h"
+#include "GL.h"
 #include "Scene.h"
 
 class ControllerManager

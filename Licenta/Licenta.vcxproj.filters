@@ -672,10 +672,13 @@
     <ClInclude Include="Terrain.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Error.h">
+    <ClInclude Include="Water.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Water.h">
+    <ClInclude Include="Debug.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GL.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -735,9 +738,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Terrain.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Error.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Water.cpp">

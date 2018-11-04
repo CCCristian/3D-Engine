@@ -1,6 +1,6 @@
 #include "Terrain.h"
 #include "stb_image.h"
-#include "Error.h"
+#include "Debug.h"
 
 namespace OpenGL
 {

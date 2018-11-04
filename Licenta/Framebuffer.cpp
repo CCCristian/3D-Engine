@@ -1,5 +1,5 @@
 #include "Framebuffer.h"
-#include "Error.h"
+#include "Debug.h"
 
 namespace OpenGL
 {

@@ -1,6 +1,6 @@
 #include "Shader.h"
 #include "Options.h"
-#include "Error.h"
+#include "Debug.h"
 
 namespace OpenGL
 {
@@ -38,7 +38,7 @@ namespace OpenGL
 		glGetShaderiv(shader, GL_COMPILE_STATUS, &succes);
 		if (succes)
 		{
-			int dim;
+			int dim = defaultBufferSize;
 			glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &dim);
 			if (dim > 1)
 			{
@@ -50,7 +50,7 @@ namespace OpenGL
 		}
 		else
 		{
-			int dim;
+			int dim = defaultBufferSize;
 			glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &dim);
 			GLchar *info = new GLchar[dim];
 			glGetShaderInfoLog(shader, dim, 0, info);
@@ -74,24 +74,11 @@ namespace OpenGL
 		glGetProgramiv(program, GL_LINK_STATUS, &succes);
 		if (!succes)
 		{
-			int dim;
+			int dim = defaultBufferSize;
 			glGetProgramiv(program, GL_INFO_LOG_LENGTH, &dim);
 			GLchar *info = new GLchar[dim];
 			glGetProgramInfoLog(program, dim, 0, info);
 			std::cerr << "Eroare la linkare program: " << (std::string(vshaderSource) + " + " + fshaderSource) << ":\n" << info << "\n\n";
-			std::cin.get();
-			delete info;
-			exit(1);
-		}
-		glValidateProgram(program);
-		glGetProgramiv(program, GL_VALIDATE_STATUS, &succes);
-		if (!succes)
-		{
-			int dim;
-			glGetShaderiv(program, GL_INFO_LOG_LENGTH, &dim);
-			GLchar *info = new GLchar[dim];
-			glGetProgramInfoLog(program, dim, 0, info);
-			std::cerr << "Eroare la validare program : " << info << "\n\n";
 			std::cin.get();
 			delete info;
 			exit(1);

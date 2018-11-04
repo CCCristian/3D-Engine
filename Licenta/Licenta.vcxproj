@@ -218,8 +218,9 @@
     <ClInclude Include="Assimp\include\Assimp\version.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ControllerManager.h" />
-    <ClInclude Include="Error.h" />
+    <ClInclude Include="Debug.h" />
     <ClInclude Include="Framebuffer.h" />
+    <ClInclude Include="GL.h" />
     <ClInclude Include="GLFW\glfw3.h" />
     <ClInclude Include="GLFW\glfw3native.h" />
     <ClInclude Include="glm\common.hpp" />
@@ -395,7 +396,6 @@
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="ControllerManager.cpp" />
-    <ClCompile Include="Error.cpp" />
     <ClCompile Include="Framebuffer.cpp" />
     <ClCompile Include="glm\detail\glm.cpp" />
     <ClCompile Include="Light.cpp" />

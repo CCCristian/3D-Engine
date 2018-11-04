@@ -1,8 +1,7 @@
 #pragma once
 
 // Wrapper peste API-ul OpenGL
-#include "GL\glew.h"
-#include "GL\freeglut.h"
+#include "GL.h"
 #include <iostream>
 #include <fstream>
 #include <vector>

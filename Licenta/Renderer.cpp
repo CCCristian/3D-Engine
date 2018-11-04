@@ -1,6 +1,6 @@
 #include "Renderer.h"
 #include "Options.h"
-#include "Error.h"
+#include "Debug.h"
 
 namespace OpenGL
 {

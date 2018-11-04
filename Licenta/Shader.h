@@ -1,7 +1,6 @@
 #pragma once
 
-#include "GL\glew.h"
-#include "GL\freeglut.h"
+#include "GL.h"
 #include "glm.hpp"
 #include <iostream>
 #include <fstream>
@@ -12,6 +11,7 @@ namespace OpenGL
 	class Shader
 	{
 	protected:
+		static const int defaultBufferSize = 1024;
 		GLuint program;
 		GLuint addShader(const char *file, GLenum tip);
 		GLuint createProgram(const char *vshaderSource, const char *fshaderSource);

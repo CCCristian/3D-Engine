@@ -4,7 +4,7 @@
 #include "Framebuffer.h"
 #include "Object.h"
 #include "Terrain.h"
-#include "Error.h"
+#include "Debug.h"
 
 
 InputManager Input;

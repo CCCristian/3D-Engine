@@ -1,7 +1,7 @@
 #include <iostream>
 #define STB_IMAGE_IMPLEMENTATION
 #include "Texture.h"
-#include "Error.h"
+#include "Debug.h"
 
 namespace OpenGL
 {

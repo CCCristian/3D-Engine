@@ -2,7 +2,7 @@
 #include <iostream>
 #include "assimp\postprocess.h"
 #include "glm\gtc\matrix_transform.hpp"
-#include "Error.h"
+#include "Debug.h"
 
 extern bool useNormalMapping;
 
