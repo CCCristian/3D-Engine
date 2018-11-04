@@ -54,7 +54,7 @@ artifacts/
 *_i.h
 *.ilk
 *.meta
-*.obj
+#*.obj	# Include .obj models
 *.pch
 *.pdb
 *.pgc
