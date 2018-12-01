@@ -13,8 +13,8 @@ public:
 
 struct InputManager
 {
-	int xMouseLast;
-	int yMouseLast;
+	int xMouseLast = 0;
+	int yMouseLast = 0;
 	bool upArrowPressed = false;
 	bool downArrowPressed = false;
 	bool leftArrowPressed = false;
@@ -26,7 +26,7 @@ struct InputManager
 	bool mouseLeftButtonPressed = false;
 	bool mouseMiddleButtonPressed = false;
 	bool mouseRightButtonPressed = false;
-	bool keyPressed[256];
+	bool keyPressed[256] = { false };
 };
 
 void keyboardButtonPress(unsigned char, int, int);

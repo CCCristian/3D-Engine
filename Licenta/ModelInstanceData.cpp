@@ -2,13 +2,14 @@
 
 namespace OpenGL
 {
-	ModelInstanceData::ModelInstanceData(const Model *model): model(model)
+	ModelInstanceData::ModelInstanceData(const Model *model): model(model), areVBOsUpdated(false)
 	{
-		instanceVAOVectors.reserve(model->getMeshObjectsCount());
-		instanceVBOHandles.reserve(model->getMeshObjectsCount());
-		vbos = new GLuint[model->getMeshObjectsCount()];
-		glGenBuffers(model->getMeshObjectsCount(), vbos);
-		for (int i = 0; i < model->getMeshObjectsCount(); i++)
+		int meshObjectsCount = model->getMeshObjectsCount();
+		instanceVAOVectors.reserve(meshObjectsCount);
+		instanceVBOHandles.reserve(meshObjectsCount);
+		vbos.resize(meshObjectsCount);
+		glGenBuffers(meshObjectsCount, &vbos[0]);
+		for (int i = 0; i < meshObjectsCount; i++)
 		{
 			instanceVAOVectors.push_back(std::vector<glm::mat4>());
 			instanceVBOHandles.push_back(vbos[i]);
@@ -19,8 +20,7 @@ namespace OpenGL
 	}
 	ModelInstanceData::~ModelInstanceData()
 	{
-		glDeleteBuffers(model->getMeshObjectsCount(), vbos);
-		delete[] vbos;
+		glDeleteBuffers(model->getMeshObjectsCount(), &vbos[0]);
 	}
 	void ModelInstanceData::updateTransform(ModelInstanceData* modelInstanceData, Object *object)
 	{

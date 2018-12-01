@@ -4,16 +4,16 @@ namespace OpenGL
 {
 	const glm::vec3 Camera::up(0.f, 0.f, 1.f);
 
-	Camera::Camera()
+	Camera::Camera(): aspectRatio(1), verticalFOV(glm::pi<float>() / 4), nearZ(1), farZ(100)
 	{
 		position = glm::vec3(0, 0, 0);
 		look = glm::vec3(0, 1, 0);
 		vertAngle = horAngle = 0;
 		calcAndSetVectors();
 		updateView();
-		setPerspective(glm::pi<float>() / 4, (float)16 / 4, (float)1, (float)10);
+		setPerspective((float)16 / 4, glm::pi<float>() / 4, (float)1, (float)10);
 	}
-	Camera::Camera(float aspectRatio, float verticalFOV, float nearZ, float drawDistance)
+	Camera::Camera(float aspectRatio, float verticalFOV, float nearZ, float drawDistance): aspectRatio(1), verticalFOV(glm::pi<float>() / 4), nearZ(1), farZ(100)
 	{
 		position = glm::vec3(0, 0, 0);
 		look = glm::vec3(0, 1, 0);

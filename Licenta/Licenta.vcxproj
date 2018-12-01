@@ -92,6 +92,14 @@
     <IntDir>$(Configuration)\</IntDir>
     <LibraryPath>$(ProjectDir)\Assimp\lib;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
   </PropertyGroup>
+  <PropertyGroup>
+    <CAExcludePath>$(ProjectDir)/GL</CAExcludePath>
+    <CAExcludePath>$(ProjectDir)/GLFW</CAExcludePath>
+    <CAExcludePath>$(ProjectDir)/Assimp</CAExcludePath>
+    <CAExcludePath>$(ProjectDir)/glm</CAExcludePath>
+    <CAExcludePath>$(ProjectDir)/glm/detail</CAExcludePath>
+    <CAExcludePath>$(ProjectDir)/stb_image.h</CAExcludePath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
@@ -397,7 +405,16 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="ControllerManager.cpp" />
     <ClCompile Include="Framebuffer.cpp" />
-    <ClCompile Include="glm\detail\glm.cpp" />
+    <ClCompile Include="glm\detail\glm.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Material.cpp" />

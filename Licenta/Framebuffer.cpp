@@ -6,7 +6,7 @@ namespace OpenGL
 	extern int currentWindowWidth;
 	extern int currentWindowHeight;
 
-	Framebuffer::Framebuffer(FramebufferType type, bool cubemap)
+	Framebuffer::Framebuffer(FramebufferType type, bool cubemap): colorTexture(nullptr), depthTexture(nullptr)
 	{
 		glGenFramebuffers(1, &fbo);
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo);

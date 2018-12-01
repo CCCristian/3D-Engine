@@ -4,7 +4,7 @@
 
 namespace OpenGL
 {
-	Terrain::Terrain(std::string name, std::string heightMapFile, Texture* texture1, Texture* texture2, Texture* texture3, float maxHeight, Material* material): Model(name, 1)
+	Terrain::Terrain(std::string name, std::string heightMapFile, Texture* texture1, Texture* texture2, Texture* texture3, float maxHeight, Material* material): Model(name, 1), textureCount(1), textureRepeatCount(1)
 	{
 		int width, height;
 		unsigned char *image = stbi_load(heightMapFile.c_str(), &width, &height, 0, heightMapChannelCount);

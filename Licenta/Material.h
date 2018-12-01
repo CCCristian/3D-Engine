@@ -25,16 +25,16 @@ namespace OpenGL
 
 		glm::vec3 diffuseColor;
 		glm::vec3 specularColor;
-		float specularIntensity;
-		float specularPower;
+		float specularIntensity = 0;
+		float specularPower = 0;
 
-		const Texture *colorTexture;
-		const Texture *colorTexture2;
-		const Texture *colorTexture3;
-		const Texture *normalTexture;
-		const Texture *specularTexture;
-		//const Texture *lightTexture;
-		//const Texture *heightTexture;
+		const Texture *colorTexture = nullptr;
+		const Texture *colorTexture2 = nullptr;
+		const Texture *colorTexture3 = nullptr;
+		const Texture *normalTexture = nullptr;
+		const Texture *specularTexture = nullptr;
+		//const Texture *lightTexture = nullptr;
+		//const Texture *heightTexture = nullptr;
 
 	public:
 		/** Material property names used by Assimp. */
@@ -59,16 +59,16 @@ namespace OpenGL
 		{
 			glm::vec3 diffuseColor;
 			glm::vec3 specularColor;
-			float specularIntensity;
-			float specularPower;
+			float specularIntensity = 0;
+			float specularPower = 0;
 
-			const Texture *colorTexture;
-			const Texture *colorTexture2;
-			const Texture *colorTexture3;
-			const Texture *normalTexture;
-			const Texture *specularTexture;
-			//const Texture *lightTexture;
-			//const Texture *heightTexture;
+			const Texture *colorTexture = nullptr;
+			const Texture *colorTexture2 = nullptr;
+			const Texture *colorTexture3 = nullptr;
+			const Texture *normalTexture = nullptr;
+			const Texture *specularTexture = nullptr;
+			//const Texture *lightTexture = nullptr;
+			//const Texture *heightTexture = nullptr;
 
 		public:
 			Builder(const Texture* colorTexture = nullptr);

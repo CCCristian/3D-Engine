@@ -1,6 +1,7 @@
 #include "Shader.h"
 #include "Options.h"
 #include "Debug.h"
+#include <vector>
 
 namespace OpenGL
 {
@@ -42,21 +43,19 @@ namespace OpenGL
 			glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &dim);
 			if (dim > 1)
 			{
-				GLchar *info = new GLchar[dim];
-				glGetShaderInfoLog(shader, dim, 0, info);
-				std::cout << "Compilare shader \"" << file << "\":\n" << info << "\n\n";
-				delete info;
+				std::vector<GLchar> info(dim);
+				glGetShaderInfoLog(shader, dim, 0, &info[0]);
+				std::cout << "Compilare shader \"" << file << "\":\n" << &info[0] << "\n\n";
 			}
 		}
 		else
 		{
 			int dim = defaultBufferSize;
 			glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &dim);
-			GLchar *info = new GLchar[dim];
-			glGetShaderInfoLog(shader, dim, 0, info);
-			std::cerr << "Eroare la compilare shader \"" << file << "\":\n" << info << "\n\n";
+			std::vector<GLchar> info(dim);
+			glGetShaderInfoLog(shader, dim, 0, &info[0]);
+			std::cerr << "Eroare la compilare shader \"" << file << "\":\n" << &info[0] << "\n\n";
 			std::cin.get();
-			delete info;
 			glDeleteShader(shader);
 			exit(1);
 		}
@@ -76,11 +75,10 @@ namespace OpenGL
 		{
 			int dim = defaultBufferSize;
 			glGetProgramiv(program, GL_INFO_LOG_LENGTH, &dim);
-			GLchar *info = new GLchar[dim];
-			glGetProgramInfoLog(program, dim, 0, info);
-			std::cerr << "Eroare la linkare program: " << (std::string(vshaderSource) + " + " + fshaderSource) << ":\n" << info << "\n\n";
+			std::vector<GLchar> info(dim);
+			glGetProgramInfoLog(program, dim, 0, &info[0]);
+			std::cerr << "Eroare la linkare program: " << (std::string(vshaderSource) + " + " + fshaderSource) << ":\n" << &info[0] << "\n\n";
 			std::cin.get();
-			delete info;
 			exit(1);
 		}
 		glDetachShader(program, vshader);

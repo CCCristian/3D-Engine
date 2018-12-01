@@ -20,6 +20,7 @@ namespace OpenGL
 		Texture::mipmapLevel = mipmapLevel;
 		Texture::imageFormat = imageFormat;
 		Texture::dataType = dataType;
+		Texture::pixelFormat = pixelFormat;
 		glGenTextures(1, &tex);
 		glBindTexture(GL_TEXTURE_2D, tex);
 		if (imageFormat == GL_DEPTH_COMPONENT)
@@ -110,7 +111,7 @@ namespace OpenGL
 	}
 
 
-	Texture::TextureData::TextureData(std::string filePath)
+	Texture::TextureData::TextureData(std::string filePath): height(0), width(0)
 	{
 		if (filePath == "" || filePath[filePath.length() - 1] == '/' || filePath[filePath.length() - 1] == '\\')
 		{

@@ -3,7 +3,7 @@
 
 namespace OpenGL
 {
-	Object::Object(const Model *model)
+	Object::Object(const Model *model): modelInstanceData(nullptr)
 	{
 		Object::model = model;
 		position = glm::vec3(0, 0, 0);

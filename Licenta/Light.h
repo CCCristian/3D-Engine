@@ -10,7 +10,7 @@ namespace OpenGL
 	struct AmbientLight
 	{
 		glm::vec3 color;
-		float intensity;
+		float intensity = 0;
 	};
 
 
@@ -90,7 +90,7 @@ namespace OpenGL
 	struct Lights
 	{
 		AmbientLight ambientLight;
-		DirectionalLight* directionalLight;
+		DirectionalLight* directionalLight = nullptr;
 		std::set<PointLight *> pointLights;
 		std::set<SpotLight *> spotLights;
 	};
