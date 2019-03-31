@@ -32,10 +32,10 @@ namespace OpenGL
 		~ModelInstanceData();
 		void addInstance(Object *obj);
 		void removeInstance(Object *obj);
-		const Model* getModel() const					{ return model; }
+		const Model* getModel() const						{ return model; }
 		const std::vector<std::vector<glm::mat4>>& getMeshInstancesVector() const		{ return instanceVAOVectors; }
-		int getInstanceCount() const					{ return instancePointerVectors.size(); }
-		const std::vector<GLuint> getVBOHandles() const	{ return vbos; }
+		int getInstanceCount() const						{ return instancePointerVectors.size(); }
+		const std::vector<GLuint>& getVBOHandles() const	{ return vbos; }
 #ifdef USE_INSTANCED_RENDERING
 		/** This is to orphan VBOs only when needed, on render, instead of on each instances vector change. */
 		mutable bool areVBOsUpdated;
