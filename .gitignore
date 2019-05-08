@@ -4,6 +4,7 @@
 AssImp/
 assimp-4.1.0/
 SOIL_ext-master/
+*.pdf
 
 # User-specific files
 *.suo
