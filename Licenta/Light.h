@@ -1,7 +1,5 @@
 #pragma once
 
-#include "glm.hpp"
-#include "glm/gtc/matrix_transform.hpp"
 #include "Framebuffer.h"
 #include "Object.h"
 

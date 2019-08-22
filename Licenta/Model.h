@@ -1,13 +1,6 @@
 #pragma once
 
 #include "GL.h"
-#include "glm.hpp"
-#include "glm\gtc\constants.hpp"
-#include "Assimp\include\assimp\Importer.hpp"
-#include "Assimp\include\assimp\scene.h"
-#include <set>
-#include <map>
-#include <vector>
 #include "Texture.h"
 #include "Utils.h"
 #include "Mesh.h"

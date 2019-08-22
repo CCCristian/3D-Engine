@@ -1,4 +1,4 @@
-#include <iostream>
+#include "pch.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "Texture.h"
 #include "Debug.h"
@@ -120,7 +120,8 @@ namespace OpenGL
 		}
 		else
 		{
-			data = stbi_load(filePath.c_str(), &width, &height, 0, STBI_rgb);
+			int channelCount;
+			data = stbi_load(filePath.c_str(), &width, &height, &channelCount, STBI_rgb);
 			if (data == 0)
 			{
 				std::cerr << "Eroare la incarcarea texturii: \"" << filePath << "\"\n";

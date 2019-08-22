@@ -1,11 +1,6 @@
 #pragma once
 
 #include "GL.h"
-//#include "SOIL.h"
-#include "stb_image.h"
-#include <string>
-#include <map>
-#include "glm.hpp"
 
 namespace OpenGL
 {

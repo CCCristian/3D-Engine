@@ -2,7 +2,6 @@
 
 #include "Texture.h"
 
-
 namespace OpenGL
 {
 	class Material

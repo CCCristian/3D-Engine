@@ -1,7 +1,7 @@
+#include "pch.h"
 #include "Shader.h"
 #include "Options.h"
 #include "Debug.h"
-#include <vector>
 
 namespace OpenGL
 {

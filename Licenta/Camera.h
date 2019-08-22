@@ -1,9 +1,6 @@
 #pragma once
 
 #include "GL.h"
-#include "glm.hpp"
-#include "glm\gtc\matrix_transform.hpp"
-#include "glm\gtc\constants.hpp"
 
 namespace OpenGL
 {

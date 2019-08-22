@@ -1,11 +1,10 @@
 // Licenta.cpp : Grafica pe calculator
 //
+#include "pch.h"
 
 #include "GL.h"
 #include "OpenGL.h"
 #include "ControllerManager.h"
-#include <iostream>
-#include <thread>
 #include "Debug.h"
 
 constexpr char titluFereastra[] = "3D Rendering Engine";

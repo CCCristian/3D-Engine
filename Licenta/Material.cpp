@@ -1,5 +1,5 @@
+#include "pch.h"
 #include "Material.h"
-#include <iostream>
 
 namespace OpenGL
 {

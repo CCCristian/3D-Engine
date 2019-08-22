@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "ModelInstanceData.h"
 
 namespace OpenGL

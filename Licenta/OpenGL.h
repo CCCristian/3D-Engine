@@ -2,13 +2,6 @@
 
 // Wrapper peste API-ul OpenGL
 #include "GL.h"
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include "glm.hpp"
-#include "glm\gtc\matrix_transform.hpp"
-#include "glm\gtc\quaternion.hpp"
-#include "glm\gtx\quaternion.hpp"
 #include "Utils.h"
 #include "Camera.h"
 #include "Model.h"

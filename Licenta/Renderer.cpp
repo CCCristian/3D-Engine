@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "Renderer.h"
 #include "Options.h"
 #include "Debug.h"

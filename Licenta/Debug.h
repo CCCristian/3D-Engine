@@ -1,7 +1,5 @@
 #pragma once
 
-#include <iostream>
-
 #ifdef _DEBUG
 
 static const char* error_GL_INVALID_ENUM					= "GL_INVALID_ENUM";

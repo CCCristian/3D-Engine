@@ -1,4 +1,5 @@
 // Wrapper peste API-ul OpenGL
+#include "pch.h"
 #include "OpenGL.h"
 
 namespace OpenGL

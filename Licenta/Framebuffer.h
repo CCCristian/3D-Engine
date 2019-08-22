@@ -2,8 +2,6 @@
 
 #include "GL.h"
 #include "Texture.h"
-#include <iostream>
-#include <set>
 
 namespace OpenGL
 {

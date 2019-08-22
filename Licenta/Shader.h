@@ -1,10 +1,6 @@
 #pragma once
 
 #include "GL.h"
-#include "glm.hpp"
-#include <iostream>
-#include <fstream>
-#include <string>
 
 namespace OpenGL
 {

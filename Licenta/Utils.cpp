@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "Utils.h"
 
 std::minstd_rand random((unsigned int)std::chrono::steady_clock::now().time_since_epoch().count());

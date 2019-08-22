@@ -1,5 +1,5 @@
+#include "pch.h"
 #include "Terrain.h"
-#include "stb_image.h"
 #include "Debug.h"
 
 namespace OpenGL

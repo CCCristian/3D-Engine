@@ -1,7 +1,5 @@
+#include "pch.h"
 #include "Model.h"
-#include <iostream>
-#include "assimp\postprocess.h"
-#include "glm\gtc\matrix_transform.hpp"
 #include "Debug.h"
 
 extern bool useNormalMapping;

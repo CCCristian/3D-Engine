@@ -1,4 +1,5 @@
 // Clasa in care e implementata logica programului
+#include "pch.h"
 #include "ControllerManager.h"
 #include "OpenGL.h"
 #include "Framebuffer.h"

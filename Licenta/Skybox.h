@@ -2,7 +2,6 @@
 
 #include "Texture.h"
 #include "Shader.h"
-#include <vector>
 
 namespace OpenGL
 {
